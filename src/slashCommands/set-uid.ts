@@ -1,5 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
+import { getUid, getUidByUid, setUid } from "../db";
 
 export const command: SlashCommand = {
     name: "set-uid",
@@ -15,23 +16,40 @@ export const command: SlashCommand = {
     execute: async (interaction) => {
 
         // Récupération du message
-        const message = interaction.options.get("message")?.value?.toString();
+        const uid = interaction.options.get("uid")?.value?.toString();
 
         // Vérifie si le message est vide
-        if (!message) {
+        if (!uid) {
             await interaction.reply({ content: "Veuillez entrer votre UID !" });
             return;
         }
 
         // Verification de l'UID
-        if (message.length !== 18) {
-            await interaction.reply({ content: "Votre UID doit contenir 18 caractères !" });
+
+        // Format de l'UID
+        const regexUid = /^\d{9}$/;
+
+        // Vérifier si l'utilisateur a déjà un UID d'enregistré
+        if (getUid(interaction.user.id)) {
+            await interaction.reply({ content: "Vous avez déjà enregistré un UID !" });
             return;
         }
 
-        // TODO : Vérifier si l'UID est déjà enregistré
+        // Vérifier si l'UID est déjà enregistré
+        if (getUidByUid(uid)) {
+            await interaction.reply({ content: "Cet UID est déjà enregistré !" });
+            return;
+        }
 
-        // TODO : Enregistrer l'UID
+        // Vérifier si l'UID est valide 
+        if (!regexUid.test(uid)) {
+            await interaction.reply({ content: "Votre UID doit contenir 9 chiffres !" });
+            return;
+        }
+
+        // Enregistrer l'UID
+        setUid(interaction.user.id, uid);
+        await interaction.reply({ content: "Votre UID a bien été enregistré !" });
 
         // TODO : Récupérer les informations du joueur
 

@@ -10,7 +10,6 @@ module.exports = async (client) => {
         if (!file.endsWith(".js"))
             return;
         const command = require(`${slashCommandsDir}/${file}`).command;
-        console.log(command);
         body.push(command.data.toJSON());
         client.slashCommands.set(command.name, command);
     });
