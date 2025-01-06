@@ -25,6 +25,7 @@
   "dependencies": {
     "better-sqlite3": "^11.7.2",
     "discord.js": "^14.17.2",
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "enkanetwork.js": "^2.9.3"
   }
 }

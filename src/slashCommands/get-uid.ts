@@ -1,6 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import { getUid } from "../db";
 
 export const command: SlashCommand = {
     name: "get-uid",
@@ -13,19 +12,7 @@ export const command: SlashCommand = {
                 .setDescription("Membre dont vous souhaitez récupérer l'ID Discord")
                 .setRequired(true);
         }),
-
     execute: async (interaction) => {
-
-        // Récupération du membre
-        const member = interaction.options.get("membre")?.value?.toString();
-
-        // TODO : Vérifier si le membre est valide
-
-        // TODO : Récupérer l'UID Genshin correspondant à l'ID Discord
-
-        // TODO : Récupérer les informations du joueur
-
-        // TODO : Répondre au message
-
+        await interaction.reply({ content: "Récupération de l'UID en cours..." });
     }
 };

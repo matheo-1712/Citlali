@@ -28,4 +28,18 @@ export interface SlashCommand {
     async execute: (interaction: CommandInteraction) => Promise<void>
 }
 
-export {};
+export interface User {
+    id_discord: string,
+    uid_genshin: string | null; 
+}
+
+export interface Character {
+    uid_genshin: string,
+    character_id: number,
+    name: string,
+    element: string,
+    level: number,
+    constellations: number,
+}
+
+export { };
