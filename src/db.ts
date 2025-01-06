@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { Character, User } from './types';
+import { Character, UidInfos, User } from './types';
 
 // Initialiser la base de données
 const db = new Database('database.sqlite', { verbose: console.log });
@@ -20,12 +20,11 @@ export const initializeDatabase = () => {
             id TEXT PRIMARY KEY,
             uid TEXT NOT NULL,
             nickname TEXT,
-            level TEXT,
+            level INTEGER,
             signature TEXT,
-            finishAchievementNum TEXT,
+            finishAchievementNum INTEGER,
             towerFloor TEXT,
-            theaterAct TEXT,
-            fetterCount TEXT
+            affinityCount INTEGER
         )`)
         .run();
 
@@ -37,9 +36,10 @@ export const initializeDatabase = () => {
                 name TEXT NOT NULL,
                 element TEXT NOT NULL,
                 level INTEGER NOT NULL,
-                stars INTEGER NOT NULL,
+                constellations INTEGER NOT NULL
             )
         `).run();
+
 
     /* 
         towerFloor - étage des abysses
@@ -89,13 +89,13 @@ export function userHasUid(uid_genshin: string): boolean {
 }
 
 // Récupérer les informations d'un utilisateur (id_discord, uid_genshin)
-export function getUser(id_discord: string) {
-    const user = db.prepare(
-        `SELECT * FROM users 
+export function getUserUid(id_discord: string): string {
+    const uid_genshin = db.prepare(
+        `SELECT uid_genshin FROM users 
         WHERE id_discord = ?`
-    ).get(id_discord);
+    ).get(id_discord) as { uid_genshin: string };
 
-    return user;
+    return uid_genshin?.uid_genshin || '';
 }
 
 // Modifier les informations d'un utilisateur (id_discord, uid_genshin)
@@ -117,13 +117,49 @@ export function deleteUser(id_discord: string) {
     console.log("Utilisateur supprimé de la base de données. 😶‍🌫️");
 }
 
-// TODO : Ajouter un personnages à la base de données (uid_genshin, character_id, name, element, level, stars, assets)
+// Récupérer les informations d'un utilisateur (uid_genshin)
+export function getUidInfos(uid_genshin: string): UidInfos {
+    const uid_infos = db.prepare(
+        `SELECT * FROM uid_infos 
+        WHERE uid = ?`
+    ).get(uid_genshin);
+
+    return uid_infos as UidInfos;
+}
+
+// Ajouter les informations du compte de l'utilisateur dans la table uid_infos (uid_genshin)
+
+export function addUidInfos(uid_infos: UidInfos): boolean {
+    try {
+        db.prepare(`
+            INSERT INTO uid_infos (
+                uid, nickname, level, signature, finishAchievementNum, towerFloor, affinityCount
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `).run(
+            uid_infos.uid,
+            uid_infos.nickname,
+            uid_infos.level,
+            uid_infos.signature,
+            uid_infos.finishAchievementNum,
+            uid_infos.towerFloor,
+            uid_infos.affinityCount,
+        );
+
+        console.log(`Informations ajoutées pour l'UID : ${uid_infos.uid}`);
+        return true;
+    } catch (error) {
+        console.error(`Erreur lors de l'ajout des informations de l'UID ${uid_infos.uid}:`, error);
+        return false;
+    }
+}
+
+// Ajouter un personnages à la base de données (uid_genshin, character_id, name, element, level, stars, assets)
 export function addCharacter(character: Character) {
     try {
         db.prepare(`
             INSERT INTO players_characters (
-                uid_genshin, character_id, name, element, level, constellations, assets
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                uid_genshin, character_id, name, element, level, constellations
+            ) VALUES (?, ?, ?, ?, ?, ?)
         `).run(
             character.uid_genshin,
             character.character_id,
@@ -131,12 +167,22 @@ export function addCharacter(character: Character) {
             character.element,
             character.level,
             character.constellations,
+
         );
 
         console.log(`Personnage ajouté : ${character.name}`);
     } catch (error) {
         console.error(`Erreur lors de l'ajout du personnage ${character.name}:`, error);
     }
+}
+
+// Récupérer les personnages d'un utilisateur (uid_genshin)
+export function getCharacters(uid_genshin: string) {
+    const characters = db.prepare(
+        `SELECT * FROM players_characters 
+        WHERE uid_genshin = ?`
+    ).all(uid_genshin) as { character_id: number, name: string, element: string, level: number, constellations: number }[];
+    return characters;
 }
 
 

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
-import { Character, SlashCommand } from "../types";
-import { addCharacter, addUser, userExists, userHasUid } from "../db";
+import { Character, SlashCommand, UidInfos } from "../types";
+import { addCharacter, addUidInfos, addUser, userExists, userHasUid } from "../db";
 import { Wrapper } from "enkanetwork.js"
 
 export const command: SlashCommand = {
@@ -68,6 +68,22 @@ export const command: SlashCommand = {
             return;
         }
 
+        // Préparation des variables
+        const towerFloor = playerData.player.abyss.floor + "-" + playerData.player.abyss.chamber + "-" + playerData.player.abyss.stars + '⭐';
+
+
+        // Ajouter les informations de l'utilisateur
+        const uid_infos: UidInfos = {
+            uid: uid,
+            nickname: playerData.player.username,
+            level: Number(playerData.player.levels.rank),
+            signature: playerData.player.signature,
+            finishAchievementNum: playerData.player.achievements,
+            towerFloor: towerFloor,
+            affinityCount: playerData.player.maxFriendshipCount,
+        }
+        addUidInfos(uid_infos);
+
         // Ajouter le personnage au joueur
         for (const characterData of playerData.player.showcase) {
             const character: Character = {
@@ -83,6 +99,5 @@ export const command: SlashCommand = {
 
         // Répondre à l'utilisateur
         await interaction.reply({ content: "Votre UID a bien été enregistré !" });
-
     }
 }

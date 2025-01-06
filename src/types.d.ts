@@ -42,4 +42,14 @@ export interface Character {
     constellations: number,
 }
 
+export interface UidInfos {
+    uid: string,
+    nickname: string,
+    level: number,
+    signature: string,
+    finishAchievementNum: number,
+    towerFloor: string,
+    affinityCount: number,
+}
+
 export { };

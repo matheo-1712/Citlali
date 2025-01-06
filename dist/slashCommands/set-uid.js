@@ -58,6 +58,19 @@ exports.command = {
             await interaction.reply({ content: "Cet UID n'existe pas !" });
             return;
         }
+        // Préparation des variables
+        const towerFloor = playerData.player.abyss.floor + "-" + playerData.player.abyss.chamber + "-" + playerData.player.abyss.stars + '⭐';
+        // Ajouter les informations de l'utilisateur
+        const uid_infos = {
+            uid: uid,
+            nickname: playerData.player.username,
+            level: Number(playerData.player.levels.rank),
+            signature: playerData.player.signature,
+            finishAchievementNum: playerData.player.achievements,
+            towerFloor: towerFloor,
+            affinityCount: playerData.player.maxFriendshipCount,
+        };
+        (0, db_1.addUidInfos)(uid_infos);
         // Ajouter le personnage au joueur
         for (const characterData of playerData.player.showcase) {
             const character = {
@@ -66,8 +79,7 @@ exports.command = {
                 name: characterData.name,
                 element: characterData.element,
                 level: Number(characterData.level),
-                stars: characterData.constellations,
-                assets: characterData.assets
+                constellations: characterData.constellations,
             };
             (0, db_1.addCharacter)(character);
         }
