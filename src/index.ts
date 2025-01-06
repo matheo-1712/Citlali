@@ -3,6 +3,7 @@ import * as dotenv from "dotenv";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { SlashCommand } from "./types";
+import { initializeDatabase } from "./db";
 
 dotenv.config();
 
@@ -14,6 +15,8 @@ const client = new Client({
         GatewayIntentBits.MessageContent
     ]
 });
+
+initializeDatabase();
 
 client.slashCommands = new Collection<string, SlashCommand>();
 
