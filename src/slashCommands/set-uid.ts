@@ -81,6 +81,10 @@ export const command: SlashCommand = {
             finishAchievementNum: playerData.player.achievements,
             towerFloor: towerFloor,
             affinityCount: playerData.player.maxFriendshipCount,
+            theaterAct: Number(playerData.player.theaterAct),
+            theaterMode: playerData.player.theaterMode,
+            worldLevel: Number(playerData.player.levels.world),
+            
         }
         addUidInfos(uid_infos);
 
@@ -93,6 +97,7 @@ export const command: SlashCommand = {
                 element: characterData.element,
                 level: Number(characterData.level),
                 constellations: characterData.constellations,
+                icon: characterData.assets.icon,
             }
             addCharacter(character);
         }

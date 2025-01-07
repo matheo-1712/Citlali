@@ -69,6 +69,9 @@ exports.command = {
             finishAchievementNum: playerData.player.achievements,
             towerFloor: towerFloor,
             affinityCount: playerData.player.maxFriendshipCount,
+            theaterAct: Number(playerData.player.theaterAct),
+            theaterMode: playerData.player.theaterMode,
+            worldLevel: Number(playerData.player.levels.world),
         };
         (0, db_1.addUidInfos)(uid_infos);
         // Ajouter le personnage au joueur
@@ -80,6 +83,7 @@ exports.command = {
                 element: characterData.element,
                 level: Number(characterData.level),
                 constellations: characterData.constellations,
+                icon: characterData.assets.icon,
             };
             (0, db_1.addCharacter)(character);
         }

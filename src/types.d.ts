@@ -40,16 +40,20 @@ export interface Character {
     element: string,
     level: number,
     constellations: number,
+    icon: string,
 }
 
 export interface UidInfos {
     uid: string,
     nickname: string,
     level: number,
+    worldLevel: number,
     signature: string,
     finishAchievementNum: number,
     towerFloor: string,
     affinityCount: number,
+    theaterAct: number,
+    theaterMode: string,
 }
 
 export { };
