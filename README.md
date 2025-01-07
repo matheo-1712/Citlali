@@ -1,4 +1,4 @@
-<img src="./public/img/bot/banniere.gif">
+<img src="./z_img/bot/banniere.jpg">
 
 # Citlali
 
@@ -25,7 +25,7 @@ Ce bot est en constante évolution et de nouvelles fonctionnalités seront ajout
 
 ## Installation
 
-Pour installer le bot Citlali sur votre serveur Discord, vous pouvez [cliquer ici](https://discord.com/oauth2/authorize?client_id=1272615402442199135&permissions=8&integration_type=0&scope=bot).
+Pour installer le bot Citlali sur votre serveur Discord, vous pouvez [cliquer ici](https://discord.com/oauth2/authorize?client_id=1300834433221267549&permissions=0&integration_type=0&scope=bot).
 
 Pour lancer le bot en local, vous devez :
 
@@ -33,11 +33,14 @@ Pour lancer le bot en local, vous devez :
 2. Installer les dépendances avec `npm install`
 3. Renommer le fichier `.env.example` en `.env` et le remplir avec vos informations
     
-    ```
-# DISCORD_TOKEN=<votre token Discord>
-# DISCORD_CLIENT_ID=<votre client ID Discord>
-# DEV_SERVEUR=<ID de votre serveur Discord>
-    ```
+
+```env
+DISCORD_TOKEN=<votre token Discord>
+DISCORD_CLIENT_ID=<votre client ID Discord>
+DEV_SERVEUR=<ID de votre serveur Discord>
+```
+    
+
 
 4. Lancer le bot avec `npm run start`
 
