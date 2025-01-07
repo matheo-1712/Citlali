@@ -83,6 +83,7 @@ exports.command = {
                 element: characterData.element,
                 level: Number(characterData.level),
                 constellations: characterData.constellations,
+                icon: characterData.assets.icon,
             };
             (0, db_1.addCharacter)(character);
         }

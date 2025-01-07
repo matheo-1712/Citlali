@@ -40,6 +40,7 @@ export interface Character {
     element: string,
     level: number,
     constellations: number,
+    icon: string,
 }
 
 export interface UidInfos {

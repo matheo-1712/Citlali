@@ -2,7 +2,7 @@ import Database from 'better-sqlite3';
 import { Character, UidInfos, User } from './types';
 
 // Initialiser la base de données
-const db = new Database('database.sqlite', { verbose: console.log });
+export const db = new Database('database.sqlite');
 
 // Créer les tables si elles n'existent pas
 export const initializeDatabase = () => {
@@ -35,11 +35,12 @@ export const initializeDatabase = () => {
             CREATE TABLE IF NOT EXISTS players_characters (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 uid_genshin TEXT NOT NULL,
-                character_id INTEGER NOT NULL,
+                character_id INTEGER,
                 name TEXT NOT NULL,
-                element TEXT NOT NULL,
-                level INTEGER NOT NULL,
-                constellations INTEGER NOT NULL
+                element TEXT,
+                level INTEGER,
+                constellations INTEGER,
+                icon TEXT
             )
         `).run();
 
@@ -49,18 +50,103 @@ export const initializeDatabase = () => {
 // Ajouter un utilisateur à la base de données (id_discord, uid_genshin)
 export function addUser(user: User): boolean {
     try {
-        db.prepare(`
-        INSERT INTO users (id_discord, uid_genshin)
-        VALUES (?, ?)
-    `).run(user.id_discord, user.uid_genshin);
+         // Obtenir les colonnes et les placeholders
+         const columns = Object.keys(user).join(", ");
+         const placeholders = Object.keys(user).map(() => "?").join(", ");
+         const values = Object.values(user);
 
-        console.log("Utilisateur ajouté à la base de données. 😶‍🌫️");
+         // Construire la requête SQL sécurisée avec des placeholders
+         const query = `INSERT INTO users (${columns}) VALUES (${placeholders})`;
+
+         // Exécuter la requête avec les valeurs
+         db.prepare(query).run(...values);
+
         return true;
     } catch (error) {
         console.error(error);
         return false;
     }
 }
+
+// Ajouter les informations du compte de l'utilisateur dans la table uid_infos (uid_genshin)
+export function addUidInfos(uid_infos: UidInfos): boolean {
+    try {
+        // Obtenir les colonnes et les placeholders
+        const columns = Object.keys(uid_infos).join(", ");
+        const placeholders = Object.keys(uid_infos).map(() => "?").join(", ");
+        const values = Object.values(uid_infos);
+
+        // Construire la requête SQL sécurisée avec des placeholders
+        const query = `INSERT INTO uid_infos (${columns}) VALUES (${placeholders})`;
+
+        // Exécuter la requête avec les valeurs
+        db.prepare(query).run(...values);
+
+        return true;
+    } catch (error) {
+        console.error(`Erreur lors de l'ajout des informations de l'UID ${uid_infos.uid}:`, error);
+        return false;
+    }
+}
+
+
+// Ajouter un personnages à la base de données (uid_genshin, character_id, name, element, level, stars, assets)
+export function addCharacter(character: Character) : boolean {
+    try {
+        // Obtenir les colonnes et les placeholders
+        const columns = Object.keys(character).join(", ");
+        const placeholders = Object.keys(character).map(() => "?").join(", ");
+        const values = Object.values(character);
+
+        // Avant d'ajouter le personnage, vérifier si le personnage existe déjà pour cette UID
+        const characterExists = getCharacters(character.uid_genshin).find(c => c.character_id === character.character_id);
+        if (characterExists) {
+            return false;
+        }
+
+        // Construire la requête SQL sécurisée avec des placeholders
+        const query = `INSERT INTO players_characters (${columns}) VALUES (${placeholders})`;
+
+        // Exécuter la requête avec les valeurs
+        db.prepare(query).run(...values);
+
+        return true;
+    } catch (error) {
+        console.error(`Erreur lors de l'ajout du personnage ${character.name}:`, error);
+        return false;
+    }
+}
+
+// Modifier les informations d'un utilisateur (id_discord, uid_genshin)
+export function updateUidUser(user: User) {
+    db.prepare(`
+        UPDATE users
+        SET uid_genshin = ?
+        WHERE id_discord = ?
+    `).run(user.uid_genshin, user.id_discord);
+    console.log("Utilisateur mis à jour dans la base de données. 😶‍🌫️");
+}
+
+// Modifier les informations d'un personnage (uid_genshin, character_id, name, element, level, stars, assets)
+export function updateCharacter(character: Character) {
+    try {
+        // Obtenir les colonnes et les placeholders
+        const columns = Object.keys(character).join(", ");
+        const values = Object.values(character);
+
+        // Construire la requête SQL sécurisée avec des placeholders
+        const query = `UPDATE players_characters SET ${columns} WHERE uid_genshin = ? AND character_id = ?`;
+
+        // Exécuter la requête avec les valeurs
+        db.prepare(query).run(...values);
+
+        return true;
+    } catch (error) {
+        console.error(`Erreur lors de la modification du personnage ${character.name}:`, error);
+        return false;
+    }
+}
+
 
 // Vérifier si un utilisateur existe dans la base de données (id_discord)
 export function userExists(id_discord: string): boolean {
@@ -94,16 +180,6 @@ export function getUserUid(id_discord: string): string {
     return uid_genshin?.uid_genshin || '';
 }
 
-// Modifier les informations d'un utilisateur (id_discord, uid_genshin)
-export function updateUser(user: User) {
-    db.prepare(`
-        UPDATE users
-        SET uid_genshin = ?
-        WHERE id_discord = ?
-    `).run(user.uid_genshin, user.id_discord);
-    console.log("Utilisateur mis à jour dans la base de données. 😶‍🌫️");
-}
-
 // Supprimer un utilisateur de la base de données (id_discord)
 export function deleteUser(id_discord: string) {
     db.prepare(`
@@ -121,58 +197,6 @@ export function getUidInfos(uid_genshin: string): UidInfos {
     ).get(uid_genshin);
 
     return uid_infos as UidInfos;
-}
-
-// Ajouter les informations du compte de l'utilisateur dans la table uid_infos (uid_genshin)
-
-export function addUidInfos(uid_infos: UidInfos): boolean {
-    try {
-        db.prepare(`
-            INSERT INTO uid_infos (
-                uid, nickname, level, signature, finishAchievementNum, towerFloor, affinityCount, theaterAct, theaterMode, worldLevel
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `).run(
-            uid_infos.uid,
-            uid_infos.nickname,
-            uid_infos.level,
-            uid_infos.signature,
-            uid_infos.finishAchievementNum,
-            uid_infos.towerFloor,
-            uid_infos.affinityCount,
-            uid_infos.theaterAct,
-            uid_infos.theaterMode,
-            uid_infos.worldLevel,
-        );
-
-        console.log(`Informations ajoutées pour l'UID : ${uid_infos.uid}`);
-        return true;
-    } catch (error) {
-        console.error(`Erreur lors de l'ajout des informations de l'UID ${uid_infos.uid}:`, error);
-        return false;
-    }
-}
-
-// Ajouter un personnages à la base de données (uid_genshin, character_id, name, element, level, stars, assets)
-export function addCharacter(character: Character) {
-    try {
-        db.prepare(`
-            INSERT INTO players_characters (
-                uid_genshin, character_id, name, element, level, constellations
-            ) VALUES (?, ?, ?, ?, ?, ?)
-        `).run(
-            character.uid_genshin,
-            character.character_id,
-            character.name,
-            character.element,
-            character.level,
-            character.constellations,
-
-        );
-
-        console.log(`Personnage ajouté : ${character.name}`);
-    } catch (error) {
-        console.error(`Erreur lors de l'ajout du personnage ${character.name}:`, error);
-    }
 }
 
 // Récupérer les personnages d'un utilisateur (uid_genshin)

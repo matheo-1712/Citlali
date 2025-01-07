@@ -97,6 +97,7 @@ export const command: SlashCommand = {
                 element: characterData.element,
                 level: Number(characterData.level),
                 constellations: characterData.constellations,
+                icon: characterData.assets.icon,
             }
             addCharacter(character);
         }
