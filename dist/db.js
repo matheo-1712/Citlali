@@ -35,7 +35,10 @@ const initializeDatabase = () => {
             signature TEXT,
             finishAchievementNum INTEGER,
             towerFloor TEXT,
-            affinityCount INTEGER
+            affinityCount INTEGER,
+            theaterAct INTEGER,
+            theaterMode TEXT,
+            worldLevel INTEGER
         )`)
         .run();
     db.prepare(`
@@ -122,9 +125,9 @@ function addUidInfos(uid_infos) {
     try {
         db.prepare(`
             INSERT INTO uid_infos (
-                uid, nickname, level, signature, finishAchievementNum, towerFloor, affinityCount
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        `).run(uid_infos.uid, uid_infos.nickname, uid_infos.level, uid_infos.signature, uid_infos.finishAchievementNum, uid_infos.towerFloor, uid_infos.affinityCount);
+                uid, nickname, level, signature, finishAchievementNum, towerFloor, affinityCount, theaterAct, theaterMode, worldLevel
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(uid_infos.uid, uid_infos.nickname, uid_infos.level, uid_infos.signature, uid_infos.finishAchievementNum, uid_infos.towerFloor, uid_infos.affinityCount, uid_infos.theaterAct, uid_infos.theaterMode, uid_infos.worldLevel);
         console.log(`Informations ajoutées pour l'UID : ${uid_infos.uid}`);
         return true;
     }

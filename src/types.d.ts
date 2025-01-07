@@ -46,10 +46,13 @@ export interface UidInfos {
     uid: string,
     nickname: string,
     level: number,
+    worldLevel: number,
     signature: string,
     finishAchievementNum: number,
     towerFloor: string,
     affinityCount: number,
+    theaterAct: number,
+    theaterMode: string,
 }
 
 export { };

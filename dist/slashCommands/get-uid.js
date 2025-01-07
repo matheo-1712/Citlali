@@ -47,6 +47,9 @@ exports.command = {
                     **Achievements :** ${uid_infos.finishAchievementNum}
                     **Abysse :** ${uid_infos.towerFloor}
                     **Affinités :** ${uid_infos.affinityCount}
+                    **Théâtre :** ${uid_infos.theaterAct}
+                    **Théâtre :** ${uid_infos.theaterMode}
+                    **Niveau monde :** ${uid_infos.worldLevel}
                     `,
             inline: true
         }, {

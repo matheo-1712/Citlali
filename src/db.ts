@@ -24,7 +24,10 @@ export const initializeDatabase = () => {
             signature TEXT,
             finishAchievementNum INTEGER,
             towerFloor TEXT,
-            affinityCount INTEGER
+            affinityCount INTEGER,
+            theaterAct INTEGER,
+            theaterMode TEXT,
+            worldLevel INTEGER
         )`)
         .run();
 
@@ -39,13 +42,6 @@ export const initializeDatabase = () => {
                 constellations INTEGER NOT NULL
             )
         `).run();
-
-
-    /* 
-        towerFloor - étage des abysses
-        theaterAct - acte du théâtre
-        fetterCount - nombre d'affinité des personnages
-    */
 
     console.log("Base de données initialisée.");
 };
@@ -133,8 +129,8 @@ export function addUidInfos(uid_infos: UidInfos): boolean {
     try {
         db.prepare(`
             INSERT INTO uid_infos (
-                uid, nickname, level, signature, finishAchievementNum, towerFloor, affinityCount
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                uid, nickname, level, signature, finishAchievementNum, towerFloor, affinityCount, theaterAct, theaterMode, worldLevel
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `).run(
             uid_infos.uid,
             uid_infos.nickname,
@@ -143,6 +139,9 @@ export function addUidInfos(uid_infos: UidInfos): boolean {
             uid_infos.finishAchievementNum,
             uid_infos.towerFloor,
             uid_infos.affinityCount,
+            uid_infos.theaterAct,
+            uid_infos.theaterMode,
+            uid_infos.worldLevel,
         );
 
         console.log(`Informations ajoutées pour l'UID : ${uid_infos.uid}`);
