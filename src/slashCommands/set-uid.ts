@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import {  addUser, createProfile, userExists, userHasUid } from "../db";
+import {  addUser, userExists, userHasUid } from "../db";
+import { getEnkaData, registerCharactersEnka, registerUidInfosEnka } from "../utils/enkaApi/enkaHandler";
 
 export const command: SlashCommand = {
     name: "set-uid",
@@ -57,7 +58,25 @@ export const command: SlashCommand = {
         }
 
         try {
-            await createProfile(uid);
+            // Récupérer les données de l'UID
+            const data = await getEnkaData(uid);
+
+            // Enregistrer les infos de l'UID dans la base de données
+            
+            const registerStatusUid = await registerUidInfosEnka(data)
+            
+            if (!registerStatusUid) {
+                console.error("Erreur lors de l'enregistrement des informations de l'UID !");
+            }
+
+            // Enregistrer les infos des personnages dans la base de données
+
+            const registerCharactersStatus = await registerCharactersEnka(data)
+            
+            if (!registerCharactersStatus) {
+                console.error("Erreur lors de l'enregistrement des informations des personnages !");
+            }
+
         } catch (error) {
             console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
         }

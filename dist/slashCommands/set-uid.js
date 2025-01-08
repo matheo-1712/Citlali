@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.command = void 0;
 const discord_js_1 = require("discord.js");
 const db_1 = require("../db");
+const enkaHandler_1 = require("../utils/enkaApi/enkaHandler");
 exports.command = {
     name: "set-uid",
     data: new discord_js_1.SlashCommandBuilder()
@@ -50,7 +51,18 @@ exports.command = {
             return;
         }
         try {
-            await (0, db_1.createProfile)(uid);
+            // Récupérer les données de l'UID
+            const data = await (0, enkaHandler_1.getEnkaData)(uid);
+            // Enregistrer les infos de l'UID dans la base de données
+            const registerStatusUid = await (0, enkaHandler_1.registerUidInfosEnka)(data);
+            if (!registerStatusUid) {
+                console.error("Erreur lors de l'enregistrement des informations de l'UID !");
+            }
+            // Enregistrer les infos des personnages dans la base de données
+            const registerCharactersStatus = await (0, enkaHandler_1.registerCharactersEnka)(data);
+            if (!registerCharactersStatus) {
+                console.error("Erreur lors de l'enregistrement des informations des personnages !");
+            }
         }
         catch (error) {
             console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);

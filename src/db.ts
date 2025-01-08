@@ -49,6 +49,9 @@ export const initializeDatabase = () => {
     console.log("Base de données initialisée.");
 };
 
+// TODO : Repasser sur chaque fonction pour compacter les fonctions identiques et rendre le code plus lisible possible
+
+
 /* ======================================================= ADD ======================================================= */
 
 // Ajouter un utilisateur à la base de données (id_discord, uid_genshin)
@@ -121,85 +124,6 @@ export function addCharacter(character: Character): boolean {
     }
 }
 
-// Créer un profil 
-export async function createProfile(uid: string): Promise<boolean> {
-    try {
-        // Récupérer les informations du joueur
-        const { genshin } = new Wrapper();
-
-        const playerData = await genshin.getPlayer(uid);
-
-        // Vérifier si le joueur existe
-        if (!playerData) {
-            return false;
-        }
-
-        // Préparation des variables
-        const towerFloor = playerData.player.abyss.floor + "-" + playerData.player.abyss.chamber + "-" + playerData.player.abyss.stars + '⭐';
-
-
-        // Ajouter les informations de l'utilisateur
-        const uid_infos: UidInfos = {
-            uid: uid,
-            nickname: playerData.player.username,
-            level: Number(playerData.player.levels.rank),
-            signature: playerData.player.signature,
-            finishAchievementNum: playerData.player.achievements,
-            towerFloor: towerFloor,
-            affinityCount: playerData.player.maxFriendshipCount,
-            theaterAct: Number(playerData.player.theaterAct),
-            theaterMode: playerData.player.theaterMode,
-            worldLevel: Number(playerData.player.levels.world),
-            playerIcon: playerData.player.profilePicture.assets.icon,
-
-        }
-
-        // Ajouter les informations de l'utilisateur
-        try {
-            addUidInfos(uid_infos);
-        }
-        catch (error) {
-            console.error("Erreur lors de l'ajout des informations de l'UID:", error);
-            return false;
-        }
-
-        for (const characterData of playerData.player.showcase) {
-            const character: Character = {
-                uid_genshin: uid,
-                character_id: Number(characterData.characterId),
-                name: characterData.name,
-                element: characterData.element,
-                level: Number(characterData.level),
-                constellations: characterData.constellations,
-                icon: characterData.assets.icon,
-            }
-
-            const characterExists = getCharacters(uid).find(c => c.character_id === character.character_id);
-            if (characterExists) {
-                try {
-                    updateCharacter(character);
-                } catch (error) {
-                    console.error("Erreur lors de la mise à jour du personnage:", error);
-                }
-            } else {
-                try {
-                    addCharacter(character);
-                } catch (error) {
-                    console.error("Erreur lors de l'ajout du personnage:", error);
-                }
-            }
-        }
-        // console.log(`Mise à jour des informations pour l'utilisateur ${uid_infos.nickname} avec succès.`);
-        return true;
-    }
-    catch (error) {
-        console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
-        return false;
-    }
-
-}
-
-
 /* ======================================================= Boolean ======================================================= */
 
 // Vérifier si un utilisateur existe dans la base de données (id_discord)
@@ -219,6 +143,28 @@ export function userHasUid(uid_genshin: string): boolean {
         `SELECT * FROM users 
         WHERE uid_genshin = ?`
     ).get(uid_genshin);
+
+    if (user === undefined) return false;
+    return true;
+}
+
+// Vérifier si l'utilisateur a déjà les informations d'un UID enregistré
+export function userHasUidInfos(uid_genshin: string): boolean {
+    const user = db.prepare(
+        `SELECT * FROM uid_infos 
+        WHERE uid = ?`
+    ).get(uid_genshin);
+
+    if (user === undefined) return false;
+    return true;
+}
+
+// Vérifier si l'utilisateur a déjà ce personnage enregistré
+export function userHasCharacter(uid_genshin: string, character_id: number): boolean {
+    const user = db.prepare(
+        `SELECT * FROM players_characters 
+        WHERE uid_genshin = ? AND character_id = ?`
+    ).get(uid_genshin, character_id);
 
     if (user === undefined) return false;
     return true;
@@ -282,14 +228,28 @@ export function updateUidUser(user: User): boolean {
     // console.log("Utilisateur mis à jour dans la base de données. 😶‍🌫️");
 }
 
-// Modifier les informations d'un personnage (uid_genshin, character_id, name, element, level, stars, assets)
 export function updateCharacter(character: Character): boolean {
     try {
-        // Obtenir les colonnes et les placeholders
-        const columns = Object.keys(character).join(", ");
-        const values = Object.values(character);
+        // Obtenir les colonnes et leurs placeholders pour la mise à jour
+        const columns = Object.keys(character)
+            .filter(key => key !== 'uid_genshin' && key !== 'character_id') // Exclure les conditions de la requête
+            .map(key => `${key} = ?`)
+            .join(", ");
 
-        // Construire la requête SQL sécurisée avec des placeholders
+        // Vérifier si des colonnes existent pour la mise à jour
+        if (!columns) {
+            throw new Error("Aucune donnée valide à mettre à jour.");
+        }
+
+        // Préparer les valeurs pour les colonnes à mettre à jour
+        const values = Object.keys(character)
+            .filter(key => key !== 'uid_genshin' && key !== 'character_id')
+            .map(key => character[key as keyof Character]);
+
+        // Ajouter les valeurs des conditions à la fin (uid_genshin et character_id)
+        values.push(character.uid_genshin, character.character_id);
+
+        // Construire la requête SQL sécurisée
         const query = `UPDATE players_characters SET ${columns} WHERE uid_genshin = ? AND character_id = ?`;
 
         // Exécuter la requête avec les valeurs
@@ -324,84 +284,6 @@ export function updateUidInfos(uid_infos: UidInfos): boolean {
         console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
         return false;
     }
-}
-
-// Met à jour l'ensemble des informations d'un utilisateur
-export async function updateProfile(uid: string): Promise<boolean> {
-    try {
-        // Récupérer les informations du joueur
-        const { genshin } = new Wrapper();
-
-        const playerData = await genshin.getPlayer(uid);
-
-        // Vérifier si le joueur existe
-        if (!playerData) {
-            return false;
-        }
-
-        // Préparation des variables
-        const towerFloor = playerData.player.abyss.floor + "-" + playerData.player.abyss.chamber + "-" + playerData.player.abyss.stars + '⭐';
-
-
-        // Ajouter les informations de l'utilisateur
-        const uid_infos: UidInfos = {
-            uid: uid,
-            nickname: playerData.player.username,
-            level: Number(playerData.player.levels.rank),
-            signature: playerData.player.signature,
-            finishAchievementNum: playerData.player.achievements,
-            towerFloor: towerFloor,
-            affinityCount: playerData.player.maxFriendshipCount,
-            theaterAct: Number(playerData.player.theaterAct),
-            theaterMode: playerData.player.theaterMode,
-            worldLevel: Number(playerData.player.levels.world),
-            playerIcon: playerData.player.profilePicture.assets.icon,
-
-        }
-        // Vérifier si l'utilisateur existe déjà dans la base de données
-        if (userHasUid(uid)) {
-            try {
-                updateUidInfos(uid_infos);
-            } catch (error) {
-                console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
-            }
-        }
-
-        // Ajouter le personnage au joueur
-        for (const characterData of playerData.player.showcase) {
-            const character: Character = {
-                uid_genshin: uid,
-                character_id: Number(characterData.characterId),
-                name: characterData.name,
-                element: characterData.element,
-                level: Number(characterData.level),
-                constellations: characterData.constellations,
-                icon: characterData.assets.icon,
-            }
-            // Vérifier si le personnage existe déjà dans la base de données
-            const characterExists = getCharacters(uid).find(c => c.character_id === character.character_id);
-            if (characterExists) {
-                try {
-                    updateCharacter(character);
-                } catch (error) {
-                    console.error("Erreur lors de la mise à jour du personnage:", error);
-                }
-            } else {
-                try {
-                    addCharacter(character);
-                } catch (error) {
-                    console.error("Erreur lors de l'ajout du personnage:", error);
-                }
-            }
-        }
-        // console.log(`Mise à jour des informations pour l'utilisateur ${uid_infos.nickname} avec succès.`);
-        return true;
-    }
-    catch (error) {
-        console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
-        return false;
-    }
-
 }
 
 
