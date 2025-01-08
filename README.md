@@ -47,7 +47,7 @@ DEV_SERVEUR=<ID de votre serveur Discord>
 
 ## Auteur du bot
 
-Le bot Citlali a été créé et est maintenu [par moi même](https://github.com/matheo-1712). Vous pouvez me contacter via mon discord **rerebleue** pour toute question ou suggestion ou faire une issue via le lien suivant : [ici](https://github.com/RereBleue/Citlali/issues).
+Le bot Citlali a été créé et est maintenu [par moi même](https://github.com/matheo-1712). Vous pouvez me contacter via mon discord **rerebleue** pour toute question ou suggestion ou faire une issue via le lien suivant : [ici](https://github.com/matheo-1712/Citlali/issues).
 
 ## License
 
