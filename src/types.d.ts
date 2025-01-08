@@ -33,7 +33,7 @@ export interface User {
     uid_genshin: string | null; 
 }
 
-export interface Character {
+export interface PlayerCharacter {
     uid_genshin: string,
     character_id: number,
     name: string,
@@ -55,6 +55,15 @@ export interface UidInfos {
     theaterAct: number,
     theaterMode: string,
     playerIcon: string,
+}
+
+export interface Character {
+    name: string,
+    weapon: string,
+    vision: string,
+    region: string,
+    portraitLink: string,
+    value: string,
 }
 
 export { };

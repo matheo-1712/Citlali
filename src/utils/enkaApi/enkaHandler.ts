@@ -1,5 +1,5 @@
 import { Wrapper } from 'enkanetwork.js';
-import { Character, UidInfos } from '../../types';
+import { PlayerCharacter, UidInfos } from '../../types';
 import { addCharacter, addUidInfos, updateCharacter, updateUidInfos, userHasCharacter, userHasUidInfos } from '../../db';
 
 export const getEnkaData = async (uid: string): Promise<any> => {
@@ -35,7 +35,7 @@ export const registerUidInfosEnka = async (data: any): Promise<boolean> => {
             theaterAct: Number(data.player.theaterAct),
             theaterMode: data.player.theaterMode,
             worldLevel: Number(data.player.levels.world),
-            playerIcon: data.player.profilePicture.assets.icon,
+            playerIcon: data.player.profilePicture.assets.oldIcon,
 
         }
 
@@ -75,7 +75,7 @@ export const registerCharactersEnka = async (data: any): Promise<boolean> => {
     try {
 
         for (const characterData of data.player.showcase) {
-            const character: Character = {
+            const character: PlayerCharacter = {
                 uid_genshin: data.uid,
                 character_id: Number(characterData.characterId),
                 name: characterData.name,

@@ -31,7 +31,7 @@ const registerUidInfosEnka = async (data) => {
             theaterAct: Number(data.player.theaterAct),
             theaterMode: data.player.theaterMode,
             worldLevel: Number(data.player.levels.world),
-            playerIcon: data.player.profilePicture.assets.icon,
+            playerIcon: data.player.profilePicture.assets.oldIcon,
         };
         const uidInfos = (0, db_1.userHasUidInfos)(uid_infos.uid);
         if (uidInfos) {

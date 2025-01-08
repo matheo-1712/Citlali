@@ -1,6 +1,6 @@
 import Database from 'better-sqlite3';
-import { Character, UidInfos, User } from './types';
-import { Wrapper } from 'enkanetwork.js';
+import { Character, PlayerCharacter, UidInfos, User } from './types';
+import { dirname } from 'path';
 
 // Initialiser la base de données
 export const db = new Database('database.sqlite');
@@ -8,6 +8,7 @@ export const db = new Database('database.sqlite');
 // Créer les tables si elles n'existent pas
 export const initializeDatabase = () => {
 
+    // Création de la table users
     db.prepare(`
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
@@ -16,6 +17,7 @@ export const initializeDatabase = () => {
         )`)
         .run();
 
+    // Création de la table uid_infos
     db.prepare(`
         CREATE TABLE IF NOT EXISTS uid_infos (
             id TEXT PRIMARY KEY,
@@ -33,6 +35,7 @@ export const initializeDatabase = () => {
         )`)
         .run();
 
+    // Création de la table players_characters
     db.prepare(`
             CREATE TABLE IF NOT EXISTS players_characters (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,6 +49,38 @@ export const initializeDatabase = () => {
             )
         `).run();
 
+    // Création de la table characters
+
+
+    db.prepare(`
+            CREATE TABLE IF NOT EXISTS characters (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                weapon TEXT NOT NULL,
+                vision TEXT NOT NULL,
+                region TEXT NOT NULL,
+                portraitLink TEXT NOT NULL,
+                value TEXT NOT NULL
+            )
+        `).run();
+
+        // Récupérer les données des personnages depuis le fichier characters.json
+        const characters = require(`${dirname(__dirname)}/characters.json`).characters;
+
+        // Ajouter les données des personnages dans la table characters seulement si elles n'existent pas déjà
+        characters.forEach((character: Character) => {
+            const characterExists = db.prepare(`
+                SELECT * FROM characters
+                WHERE name = ?
+            `).get(character.name);
+
+            if (!characterExists) {
+                db.prepare(`
+                    INSERT INTO characters (name, weapon, vision, region, portraitLink, value)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `).run(character.name, character.weapon, character.vision, character.region, character.portraitLink, character.value);
+            }
+        });
     console.log("Base de données initialisée.");
 };
 
@@ -98,7 +133,7 @@ export function addUidInfos(uid_infos: UidInfos): boolean {
 
 
 // Ajouter un personnages à la base de données (uid_genshin, character_id, name, element, level, stars, assets)
-export function addCharacter(character: Character): boolean {
+export function addCharacter(character: PlayerCharacter): boolean {
     try {
         // Obtenir les colonnes et les placeholders
         const columns = Object.keys(character).join(", ");
@@ -106,7 +141,7 @@ export function addCharacter(character: Character): boolean {
         const values = Object.values(character);
 
         // Avant d'ajouter le personnage, vérifier si le personnage existe déjà pour cette UID
-        const characterExists = getCharacters(character.uid_genshin).find(c => c.character_id === character.character_id);
+        const characterExists = getPlayerCharacters(character.uid_genshin).find(c => c.character_id === character.character_id);
         if (characterExists) {
             return false;
         }
@@ -202,11 +237,19 @@ export function getUidInfos(uid_genshin: string): UidInfos {
 }
 
 // Récupérer les personnages d'un utilisateur (uid_genshin)
-export function getCharacters(uid_genshin: string) {
+export function getPlayerCharacters(uid_genshin: string) {
     const characters = db.prepare(
         `SELECT * FROM players_characters 
         WHERE uid_genshin = ?`
     ).all(uid_genshin) as { character_id: number, name: string, element: string, level: number, constellations: number }[];
+    return characters;
+}
+
+// Récupérer la liste des personnages 
+export function getCharactersList() : Character[] {
+    const characters = db.prepare(
+        `SELECT * FROM characters`
+    ).all() as { name: string, weapon: string, vision: string, region: string, portraitLink: string, value: string }[];
     return characters;
 }
 
@@ -228,7 +271,7 @@ export function updateUidUser(user: User): boolean {
     // console.log("Utilisateur mis à jour dans la base de données. 😶‍🌫️");
 }
 
-export function updateCharacter(character: Character): boolean {
+export function updateCharacter(character: PlayerCharacter): boolean {
     try {
         // Obtenir les colonnes et leurs placeholders pour la mise à jour
         const columns = Object.keys(character)
@@ -244,7 +287,7 @@ export function updateCharacter(character: Character): boolean {
         // Préparer les valeurs pour les colonnes à mettre à jour
         const values = Object.keys(character)
             .filter(key => key !== 'uid_genshin' && key !== 'character_id')
-            .map(key => character[key as keyof Character]);
+            .map(key => character[key as keyof PlayerCharacter]);
 
         // Ajouter les valeurs des conditions à la fin (uid_genshin et character_id)
         values.push(character.uid_genshin, character.character_id);

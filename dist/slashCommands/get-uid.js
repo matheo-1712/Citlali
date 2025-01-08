@@ -61,7 +61,7 @@ exports.command = {
                 }
             }
             // Récupérer les données de l'UID
-            const characters = (0, db_1.getCharacters)(uid);
+            const characters = (0, db_1.getPlayerCharacters)(uid);
             // Répondre à l'utilisateur
             const embed = new discord_js_1.EmbedBuilder()
                 .setAuthor({

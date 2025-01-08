@@ -1,6 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import { getCharacters, getUidInfos, getUserUid } from "../db";
+import { getPlayerCharacters, getUidInfos, getUserUid } from "../db";
 import { getEnkaData, registerCharactersEnka, registerUidInfosEnka } from "../utils/enkaApi/enkaHandler";
 
 export const command: SlashCommand = {
@@ -77,7 +77,7 @@ export const command: SlashCommand = {
 
 
             // Récupérer les données de l'UID
-            const characters = getCharacters(uid);
+            const characters = getPlayerCharacters(uid);
 
             // Répondre à l'utilisateur
             const embed = new EmbedBuilder()

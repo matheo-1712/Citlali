@@ -14,15 +14,18 @@ exports.userHasCharacter = userHasCharacter;
 exports.getUserUid = getUserUid;
 exports.deleteUser = deleteUser;
 exports.getUidInfos = getUidInfos;
-exports.getCharacters = getCharacters;
+exports.getPlayerCharacters = getPlayerCharacters;
+exports.getCharactersList = getCharactersList;
 exports.updateUidUser = updateUidUser;
 exports.updateCharacter = updateCharacter;
 exports.updateUidInfos = updateUidInfos;
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
+const path_1 = require("path");
 // Initialiser la base de données
 exports.db = new better_sqlite3_1.default('database.sqlite');
 // Créer les tables si elles n'existent pas
 const initializeDatabase = () => {
+    // Création de la table users
     exports.db.prepare(`
         CREATE TABLE IF NOT EXISTS users (
             id TEXT PRIMARY KEY,
@@ -30,6 +33,7 @@ const initializeDatabase = () => {
             uid_genshin TEXT NOT NULL
         )`)
         .run();
+    // Création de la table uid_infos
     exports.db.prepare(`
         CREATE TABLE IF NOT EXISTS uid_infos (
             id TEXT PRIMARY KEY,
@@ -46,6 +50,7 @@ const initializeDatabase = () => {
             playerIcon TEXT
         )`)
         .run();
+    // Création de la table players_characters
     exports.db.prepare(`
             CREATE TABLE IF NOT EXISTS players_characters (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,6 +63,33 @@ const initializeDatabase = () => {
                 icon TEXT
             )
         `).run();
+    // Création de la table characters
+    exports.db.prepare(`
+            CREATE TABLE IF NOT EXISTS characters (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                weapon TEXT NOT NULL,
+                vision TEXT NOT NULL,
+                region TEXT NOT NULL,
+                portraitLink TEXT NOT NULL,
+                value TEXT NOT NULL
+            )
+        `).run();
+    // Récupérer les données des personnages depuis le fichier characters.json
+    const characters = require(`${(0, path_1.dirname)(__dirname)}/characters.json`).characters;
+    // Ajouter les données des personnages dans la table characters seulement si elles n'existent pas déjà
+    characters.forEach((character) => {
+        const characterExists = exports.db.prepare(`
+                SELECT * FROM characters
+                WHERE name = ?
+            `).get(character.name);
+        if (!characterExists) {
+            exports.db.prepare(`
+                    INSERT INTO characters (name, weapon, vision, region, portraitLink, value)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                `).run(character.name, character.weapon, character.vision, character.region, character.portraitLink, character.value);
+        }
+    });
     console.log("Base de données initialisée.");
 };
 exports.initializeDatabase = initializeDatabase;
@@ -107,7 +139,7 @@ function addCharacter(character) {
         const placeholders = Object.keys(character).map(() => "?").join(", ");
         const values = Object.values(character);
         // Avant d'ajouter le personnage, vérifier si le personnage existe déjà pour cette UID
-        const characterExists = getCharacters(character.uid_genshin).find(c => c.character_id === character.character_id);
+        const characterExists = getPlayerCharacters(character.uid_genshin).find(c => c.character_id === character.character_id);
         if (characterExists) {
             return false;
         }
@@ -177,9 +209,14 @@ function getUidInfos(uid_genshin) {
     return uid_infos;
 }
 // Récupérer les personnages d'un utilisateur (uid_genshin)
-function getCharacters(uid_genshin) {
+function getPlayerCharacters(uid_genshin) {
     const characters = exports.db.prepare(`SELECT * FROM players_characters 
         WHERE uid_genshin = ?`).all(uid_genshin);
+    return characters;
+}
+// Récupérer la liste des personnages 
+function getCharactersList() {
+    const characters = exports.db.prepare(`SELECT * FROM characters`).all();
     return characters;
 }
 /* ======================================================= UPDATE ======================================================= */
