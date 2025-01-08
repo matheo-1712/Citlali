@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.command = void 0;
 const discord_js_1 = require("discord.js");
 const db_1 = require("../db");
-const enkanetwork_js_1 = require("enkanetwork.js");
 exports.command = {
     name: "set-uid",
     data: new discord_js_1.SlashCommandBuilder()
@@ -50,42 +49,11 @@ exports.command = {
             await interaction.reply({ content: "Une erreur est survenue lors de l'enregistrement de votre UID !" });
             return;
         }
-        // Récupérer les informations du joueur
-        const { genshin } = new enkanetwork_js_1.Wrapper();
-        const playerData = await genshin.getPlayer(uid);
-        // Vérifier si le joueur existe
-        if (!playerData) {
-            await interaction.reply({ content: "Cet UID n'existe pas !" });
-            return;
+        try {
+            await (0, db_1.createProfile)(uid);
         }
-        // Préparation des variables
-        const towerFloor = playerData.player.abyss.floor + "-" + playerData.player.abyss.chamber + "-" + playerData.player.abyss.stars + '⭐';
-        // Ajouter les informations de l'utilisateur
-        const uid_infos = {
-            uid: uid,
-            nickname: playerData.player.username,
-            level: Number(playerData.player.levels.rank),
-            signature: playerData.player.signature,
-            finishAchievementNum: playerData.player.achievements,
-            towerFloor: towerFloor,
-            affinityCount: playerData.player.maxFriendshipCount,
-            theaterAct: Number(playerData.player.theaterAct),
-            theaterMode: playerData.player.theaterMode,
-            worldLevel: Number(playerData.player.levels.world),
-        };
-        (0, db_1.addUidInfos)(uid_infos);
-        // Ajouter le personnage au joueur
-        for (const characterData of playerData.player.showcase) {
-            const character = {
-                uid_genshin: uid,
-                character_id: Number(characterData.characterId),
-                name: characterData.name,
-                element: characterData.element,
-                level: Number(characterData.level),
-                constellations: characterData.constellations,
-                icon: characterData.assets.icon,
-            };
-            (0, db_1.addCharacter)(character);
+        catch (error) {
+            console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
         }
         // Répondre à l'utilisateur
         await interaction.reply({ content: "Votre UID a bien été enregistré !" });

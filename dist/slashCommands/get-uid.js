@@ -3,7 +3,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.command = void 0;
 const discord_js_1 = require("discord.js");
 const db_1 = require("../db");
-const enkanetwork_js_1 = require("enkanetwork.js");
 exports.command = {
     name: "get-uid",
     data: new discord_js_1.SlashCommandBuilder()
@@ -41,29 +40,8 @@ exports.command = {
         const uid_infos = (0, db_1.getUidInfos)(uid);
         // Si l'option "rafraichir" est activée, mettre à jour les informations de l'utilisateur
         if (interaction.options.get("rafraichir")?.value === "maj") {
-            // Récupérer les informations du joueur
-            const { genshin } = new enkanetwork_js_1.Wrapper();
-            const playerData = await genshin.getPlayer(uid);
-            // Vérifier si le joueur existe
-            if (!playerData) {
-                await interaction.reply({ content: "Cet UID n'existe pas !" });
-                return;
-            }
             try {
-                // Ajouter le personnage au joueur
-                for (const characterData of playerData.player.showcase) {
-                    const character = {
-                        uid_genshin: uid,
-                        character_id: Number(characterData.characterId),
-                        name: characterData.name,
-                        element: characterData.element,
-                        level: Number(characterData.level),
-                        constellations: characterData.constellations,
-                        icon: characterData.assets.icon,
-                    };
-                    (0, db_1.addCharacter)(character);
-                }
-                console.log(`Mise à jour des informations pour l'utilisateur ${uid_infos.nickname} avec succès.`);
+                await (0, db_1.updateProfile)(uid);
             }
             catch (error) {
                 console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
@@ -95,6 +73,7 @@ exports.command = {
             value: `${characters.map(character => character.name).join("\n")}`,
             inline: true
         })
+            .setThumbnail(`https://enka.network/ui/${uid_infos.playerIcon}.png`)
             .setColor("#00b0f4")
             .setFooter({
             text: "Powered by EnkaNetwork API",

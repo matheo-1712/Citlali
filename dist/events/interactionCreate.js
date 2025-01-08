@@ -9,7 +9,7 @@ const event = {
             return;
         const command = interaction.client.slashCommands.get(interaction.commandName);
         if (!command)
-            return;
+            return interaction.reply({ content: "Cette commande n'existe pas ou plus !", ephemeral: true });
         await command.execute(interaction);
     }
 };

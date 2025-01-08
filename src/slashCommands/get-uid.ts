@@ -1,7 +1,6 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { Character, SlashCommand } from "../types";
-import { addCharacter, getCharacters, getUidInfos, getUserUid } from "../db";
-import { Wrapper } from "enkanetwork.js";
+import { SlashCommand } from "../types";
+import { getCharacters, getUidInfos, getUserUid, updateProfile } from "../db";
 
 export const command: SlashCommand = {
     name: "get-uid",
@@ -49,31 +48,8 @@ export const command: SlashCommand = {
 
         // Si l'option "rafraichir" est activée, mettre à jour les informations de l'utilisateur
         if (interaction.options.get("rafraichir")?.value === "maj") {
-            // Récupérer les informations du joueur
-            const { genshin } = new Wrapper();
-
-            const playerData = await genshin.getPlayer(uid);
-
-            // Vérifier si le joueur existe
-            if (!playerData) {
-                await interaction.reply({ content: "Cet UID n'existe pas !" });
-                return;
-            }
             try {
-            // Ajouter le personnage au joueur
-            for (const characterData of playerData.player.showcase) {
-                const character: Character = {
-                    uid_genshin: uid,
-                    character_id: Number(characterData.characterId),
-                    name: characterData.name,
-                    element: characterData.element,
-                    level: Number(characterData.level),
-                    constellations: characterData.constellations,
-                    icon: characterData.assets.icon,
-                }
-                addCharacter(character);
-            }
-            console.log(`Mise à jour des informations pour l'utilisateur ${uid_infos.nickname} avec succès.`);
+                await updateProfile(uid);
             } catch (error) {
                 console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
             }
@@ -109,6 +85,7 @@ export const command: SlashCommand = {
                     inline: true
                 }
             )
+            .setThumbnail(`https://enka.network/ui/${uid_infos.playerIcon}.png`)
             .setColor("#00b0f4")
             .setFooter({
                 text: "Powered by EnkaNetwork API",

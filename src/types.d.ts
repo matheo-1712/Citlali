@@ -54,6 +54,7 @@ export interface UidInfos {
     affinityCount: number,
     theaterAct: number,
     theaterMode: string,
+    playerIcon: string,
 }
 
 export { };
