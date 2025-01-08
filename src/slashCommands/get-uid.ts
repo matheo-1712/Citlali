@@ -1,6 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import { getCharacters, getUidInfos, getUserUid, updateProfile } from "../db";
+import { getCharacters, getUidInfos, getUserUid } from "../db";
+import { getEnkaData, registerCharactersEnka, registerUidInfosEnka } from "../utils/enkaApi/enkaHandler";
 
 export const command: SlashCommand = {
     name: "get-uid",
@@ -24,49 +25,69 @@ export const command: SlashCommand = {
         }),
 
     execute: async (interaction) => {
+        try {
 
-        // Récupérer l'utilisateur
-        const member = interaction.options.get("membre")?.value?.toString();
+            // Récupérer l'utilisateur
+            const member = interaction.options.get("membre")?.value?.toString();
 
-        // Vérifier si l'utilisateur existe
-        if (!member) {
-            await interaction.reply("Membre non trouvé.");
-            return;
-        }
-
-        // Récupérer l'UID Genshin
-        const uid = getUserUid(member);
-
-        // Vérifier si l'UID est enregistré
-        if (!uid) {
-            await interaction.reply("Cet utilisateur n'a pas d'UID enregistré.");
-            return;
-        }
-
-        // Récupérer les informations de l'utilisateur
-        const uid_infos = getUidInfos(uid);
-
-        // Si l'option "rafraichir" est activée, mettre à jour les informations de l'utilisateur
-        if (interaction.options.get("rafraichir")?.value === "maj") {
-            try {
-                await updateProfile(uid);
-            } catch (error) {
-                console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
+            // Vérifier si l'utilisateur existe
+            if (!member) {
+                await interaction.reply("Membre non trouvé.");
+                return;
             }
-        }
 
-        // Récupérer les personnages du joueur
-        const characters = getCharacters(uid);
+            // Récupérer l'UID Genshin
+            const uid = getUserUid(member);
 
-        // Répondre à l'utilisateur
-        const embed = new EmbedBuilder()
-            .setAuthor({
-                name: "Citlali",
-            })
-            .addFields(
-                {
-                    name: `**Nom d'utilisateur :** ${uid_infos.nickname}`,
-                    value: `            
+            // Vérifier si l'UID est enregistré
+            if (!uid) {
+                await interaction.reply("Cet utilisateur n'a pas d'UID enregistré.");
+                return;
+            }
+
+            // Récupérer les informations de l'utilisateur
+            const uid_infos = getUidInfos(uid);
+
+            // Si l'option "rafraichir" est activée, mettre à jour les informations de l'utilisateur
+            if (interaction.options.get("rafraichir")?.value === "maj") {
+                try {
+                    // Récupérer les données de l'UID
+                    const data = await getEnkaData(uid);
+
+                    // Enregistrer les infos de l'UID dans la base de données
+
+                    const registerStatusUid = await registerUidInfosEnka(data)
+
+                    if (!registerStatusUid) {
+                        console.error("Erreur lors de l'enregistrement des informations de l'UID !");
+                    }
+
+                    // Enregistrer les infos des personnages dans la base de données
+
+                    const registerCharactersStatus = await registerCharactersEnka(data)
+
+                    if (!registerCharactersStatus) {
+                        console.error("Erreur lors de l'enregistrement des informations des personnages !");
+                    }
+
+                } catch (error) {
+                    console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
+                }
+            }
+
+
+            // Récupérer les données de l'UID
+            const characters = getCharacters(uid);
+
+            // Répondre à l'utilisateur
+            const embed = new EmbedBuilder()
+                .setAuthor({
+                    name: "Citlali",
+                })
+                .addFields(
+                    {
+                        name: `**Nom d'utilisateur :** ${uid_infos.nickname}`,
+                        value: `            
                     **UID :** ${uid}
                     **Signature :** ${uid_infos.signature}
                     **Niveau :** ${uid_infos.level}
@@ -77,21 +98,27 @@ export const command: SlashCommand = {
                     **Théâtre :** ${uid_infos.theaterMode}
                     **Niveau monde :** ${uid_infos.worldLevel}
                     `,
-                    inline: true
-                },
-                {
-                    name: "**Personnages :**",
-                    value: `${characters.map(character => character.name).join("\n")}`,
-                    inline: true
-                }
-            )
-            .setThumbnail(`https://enka.network/ui/${uid_infos.playerIcon}.png`)
-            .setColor("#00b0f4")
-            .setFooter({
-                text: "Powered by EnkaNetwork API",
-            })
-            .setTimestamp();
+                        inline: true
+                    },
+                    {
+                        name: "**Personnages :**",
+                        value: `${characters.map(character => character.name).join("\n")}`,
+                        inline: true
+                    }
+                )
+                .setThumbnail(`https://enka.network/ui/${uid_infos.playerIcon}.png`)
+                .setColor("#00b0f4")
+                .setFooter({
+                    text: "Powered by EnkaNetwork API",
+                })
+                .setTimestamp();
 
-        await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed] });
+        }
+        catch (error) {
+            console.error("Erreur lors de la récupération des informations du joueur:", error);
+            await interaction.reply("Une erreur est survenue lors de la récupération des informations du joueur.");
+        }
+
     }
-};
+}
