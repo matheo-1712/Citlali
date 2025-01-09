@@ -1,5 +1,5 @@
 import Database from 'better-sqlite3';
-import { Character, PlayerCharacter, UidInfos, User } from './types';
+import { Character, Infographic, PlayerCharacter, UidInfos, User } from './types';
 import { dirname } from 'path';
 
 // Initialiser la base de données
@@ -50,8 +50,6 @@ export const initializeDatabase = () => {
         `).run();
 
     // Création de la table characters
-
-
     db.prepare(`
             CREATE TABLE IF NOT EXISTS characters (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,23 +62,34 @@ export const initializeDatabase = () => {
             )
         `).run();
 
-        // Récupérer les données des personnages depuis le fichier characters.json
-        const characters = require(`${dirname(__dirname)}/characters.json`).characters;
+    // Création de la table infographics
+    db.prepare(`
+            CREATE TABLE IF NOT EXISTS infographics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                character TEXT NOT NULL,
+                build TEXT NOT NULL,
+                url TEXT NOT NULL
+            )
+        `).run();
 
-        // Ajouter les données des personnages dans la table characters seulement si elles n'existent pas déjà
-        characters.forEach((character: Character) => {
-            const characterExists = db.prepare(`
+
+    // Récupérer les données des personnages depuis le fichier characters.json
+    const characters = require(`${dirname(__dirname)}/characters.json`).characters;
+
+    // Ajouter les données des personnages dans la table characters seulement si elles n'existent pas déjà
+    characters.forEach((character: Character) => {
+        const characterExists = db.prepare(`
                 SELECT * FROM characters
                 WHERE name = ?
             `).get(character.name);
 
-            if (!characterExists) {
-                db.prepare(`
+        if (!characterExists) {
+            db.prepare(`
                     INSERT INTO characters (name, weapon, vision, region, portraitLink, value)
                     VALUES (?, ?, ?, ?, ?, ?)
                 `).run(character.name, character.weapon, character.vision, character.region, character.portraitLink, character.value);
-            }
-        });
+        }
+    });
     console.log("Base de données initialisée.");
 };
 
@@ -131,7 +140,6 @@ export function addUidInfos(uid_infos: UidInfos): boolean {
     }
 }
 
-
 // Ajouter un personnages à la base de données (uid_genshin, character_id, name, element, level, stars, assets)
 export function addCharacter(character: PlayerCharacter): boolean {
     try {
@@ -155,6 +163,27 @@ export function addCharacter(character: PlayerCharacter): boolean {
         return true;
     } catch (error) {
         console.error(`Erreur lors de l'ajout du personnage ${character.name}:`, error);
+        return false;
+    }
+}
+
+// Ajouter un infographie à la base de données (character, build, url)
+export function addInfographic(infographic: Infographic): boolean {
+    try {
+        // Obtenir les colonnes et les placeholders
+        const columns = Object.keys(infographic).join(", ");
+        const placeholders = Object.keys(infographic).map(() => "?").join(", ");
+        const values = Object.values(infographic);
+
+        // Construire la requête SQL sécurisée avec des placeholders
+        const query = `INSERT INTO infographics (${columns}) VALUES (${placeholders})`;
+
+        // Exécuter la requête avec les valeurs
+        db.prepare(query).run(...values);
+
+        return true;
+    } catch (error) {
+        console.error(`Erreur lors de l'ajout de l'infographie ${infographic.character}:`, error);
         return false;
     }
 }
@@ -205,6 +234,17 @@ export function userHasCharacter(uid_genshin: string, character_id: number): boo
     return true;
 }
 
+// Vérifier si l'infographie existe dans la base de données (character, build)
+export function userHasInfographic(character: string, build: string): boolean {
+    const user = db.prepare(
+        `SELECT * FROM infographics 
+        WHERE character = ? AND build = ?`
+    ).get(character, build);
+
+    if (user === undefined) return false;
+    return true;
+}
+
 /* ======================================================= GET ======================================================= */
 
 // Récupérer les informations d'un utilisateur (id_discord, uid_genshin)
@@ -246,7 +286,7 @@ export function getPlayerCharacters(uid_genshin: string) {
 }
 
 // Récupérer la liste des personnages 
-export function getCharactersList() : Character[] {
+export function getCharactersList(): Character[] {
     const characters = db.prepare(
         `SELECT * FROM characters`
     ).all() as { name: string, weapon: string, vision: string, region: string, portraitLink: string, value: string }[];
@@ -329,4 +369,4 @@ export function updateUidInfos(uid_infos: UidInfos): boolean {
     }
 }
 
-
+// TODO : Mettre à jour l'infographie

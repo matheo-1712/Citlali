@@ -7,10 +7,12 @@ exports.initializeDatabase = exports.db = void 0;
 exports.addUser = addUser;
 exports.addUidInfos = addUidInfos;
 exports.addCharacter = addCharacter;
+exports.addInfographic = addInfographic;
 exports.userExists = userExists;
 exports.userHasUid = userHasUid;
 exports.userHasUidInfos = userHasUidInfos;
 exports.userHasCharacter = userHasCharacter;
+exports.userHasInfographic = userHasInfographic;
 exports.getUserUid = getUserUid;
 exports.deleteUser = deleteUser;
 exports.getUidInfos = getUidInfos;
@@ -73,6 +75,15 @@ const initializeDatabase = () => {
                 region TEXT NOT NULL,
                 portraitLink TEXT NOT NULL,
                 value TEXT NOT NULL
+            )
+        `).run();
+    // Création de la table infographics
+    exports.db.prepare(`
+            CREATE TABLE IF NOT EXISTS infographics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                character TEXT NOT NULL,
+                build TEXT NOT NULL,
+                url TEXT NOT NULL
             )
         `).run();
     // Récupérer les données des personnages depuis le fichier characters.json
@@ -154,6 +165,24 @@ function addCharacter(character) {
         return false;
     }
 }
+// Ajouter un infographie à la base de données (character, build, url)
+function addInfographic(infographic) {
+    try {
+        // Obtenir les colonnes et les placeholders
+        const columns = Object.keys(infographic).join(", ");
+        const placeholders = Object.keys(infographic).map(() => "?").join(", ");
+        const values = Object.values(infographic);
+        // Construire la requête SQL sécurisée avec des placeholders
+        const query = `INSERT INTO infographics (${columns}) VALUES (${placeholders})`;
+        // Exécuter la requête avec les valeurs
+        exports.db.prepare(query).run(...values);
+        return true;
+    }
+    catch (error) {
+        console.error(`Erreur lors de l'ajout de l'infographie ${infographic.character}:`, error);
+        return false;
+    }
+}
 /* ======================================================= Boolean ======================================================= */
 // Vérifier si un utilisateur existe dans la base de données (id_discord)
 function userExists(id_discord) {
@@ -183,6 +212,14 @@ function userHasUidInfos(uid_genshin) {
 function userHasCharacter(uid_genshin, character_id) {
     const user = exports.db.prepare(`SELECT * FROM players_characters 
         WHERE uid_genshin = ? AND character_id = ?`).get(uid_genshin, character_id);
+    if (user === undefined)
+        return false;
+    return true;
+}
+// Vérifier si l'infographie existe dans la base de données (character, build)
+function userHasInfographic(character, build) {
+    const user = exports.db.prepare(`SELECT * FROM infographics 
+        WHERE character = ? AND build = ?`).get(character, build);
     if (user === undefined)
         return false;
     return true;
@@ -283,3 +320,4 @@ function updateUidInfos(uid_infos) {
         return false;
     }
 }
+// TODO : Mettre à jour l'infographie

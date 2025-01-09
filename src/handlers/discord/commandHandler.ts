@@ -1,11 +1,11 @@
 import { Client, REST, RESTPostAPIApplicationCommandsJSONBody, Routes } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
-import { SlashCommand } from "../types";
+import { SlashCommand } from "../../types";
 
 module.exports = async (client: Client) => {
     const body: RESTPostAPIApplicationCommandsJSONBody[] = [];
-    const slashCommandsDir = join(__dirname, "../slashCommands");
+    const slashCommandsDir = join(__dirname, "../../slashCommands");
 
     readdirSync(slashCommandsDir).forEach(file => {
         if (!file.endsWith(".js")) return

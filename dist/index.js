@@ -38,6 +38,7 @@ const dotenv = __importStar(require("dotenv"));
 const fs_1 = require("fs");
 const path_1 = require("path");
 const db_1 = require("./db");
+const infographiesHandler_1 = require("./handlers/data/infographiesHandler");
 dotenv.config();
 const client = new discord_js_1.Client({
     intents: [
@@ -48,8 +49,10 @@ const client = new discord_js_1.Client({
     ]
 });
 (0, db_1.initializeDatabase)();
+// Lancement de l'enregistrement des infographies
+(0, infographiesHandler_1.registerInfographicsLink)();
 client.slashCommands = new discord_js_1.Collection();
-const handlersDirs = (0, path_1.join)(__dirname, "./handlers");
+const handlersDirs = (0, path_1.join)(__dirname, "./handlers/discord");
 (0, fs_1.readdirSync)(handlersDirs).forEach(file => {
     require(`${handlersDirs}/${file}`)(client);
 });

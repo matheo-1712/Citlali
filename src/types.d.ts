@@ -28,6 +28,8 @@ export interface SlashCommand {
     async execute: (interaction: CommandInteraction) => Promise<void>
 }
 
+// Database interfaces
+
 export interface User {
     id_discord: string,
     uid_genshin: string | null; 
@@ -64,6 +66,12 @@ export interface Character {
     region: string,
     portraitLink: string,
     value: string,
+}
+
+export interface Infographic {
+    character: string,
+    build: string,
+    url: string,
 }
 
 export { };

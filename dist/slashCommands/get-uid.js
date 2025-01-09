@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.command = void 0;
 const discord_js_1 = require("discord.js");
 const db_1 = require("../db");
-const enkaHandler_1 = require("../utils/enkaApi/enkaHandler");
+const enkaHandler_1 = require("../handlers/data/enkaHandler");
 exports.command = {
     name: "get-uid",
     data: new discord_js_1.SlashCommandBuilder()

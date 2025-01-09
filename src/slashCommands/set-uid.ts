@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
 import {  addUser, userExists, userHasUid } from "../db";
-import { getEnkaData, registerCharactersEnka, registerUidInfosEnka } from "../utils/enkaApi/enkaHandler";
+import { getEnkaData, registerCharactersEnka, registerUidInfosEnka } from "../handlers/data/enkaHandler";
 
 export const command: SlashCommand = {
     name: "set-uid",
