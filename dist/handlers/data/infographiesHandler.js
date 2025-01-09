@@ -23,6 +23,33 @@ const registerInfographicsLink = async () => {
     try {
         const charactersList = (0, db_1.getCharactersList)();
         for (const character of charactersList) {
+            // Récupérer l'url de l'infographie
+            const defaultUrl = baseUrl + character.value.toLowerCase() + '/';
+            // Vérifier si le lien est valide et ne renvoie pas une erreur 404 (avec fetch)
+            const response = await fetch(defaultUrl);
+            if (response.status !== 404) {
+                // Ouvrir la page de l'infographie
+                await page.goto(defaultUrl, { waitUntil: 'networkidle2' });
+                // Récupérer l'url de l'infographie
+                const url = page.url();
+                // Enregistrer l'infographie dans la base de données
+                const infographic = {
+                    character: character.name,
+                    build: 'default',
+                    url: url,
+                };
+                try {
+                    if (await (0, db_1.userHasInfographic)(character.name, 'default')) {
+                        // TODO : Mettre à jour l'infographie
+                    }
+                    else {
+                        (0, db_1.addInfographic)(infographic);
+                    }
+                }
+                catch (error) {
+                    console.error("Erreur lors de l'enregistrement de l'infographie:", error);
+                }
+            }
             for (const build of listBuilds) {
                 const url = baseUrl + character.value.toLowerCase() + '-' + build + '/';
                 // Vérifier si le lien est valide et ne renvoie pas une erreur 404 (avec fetch)

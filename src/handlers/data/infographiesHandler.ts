@@ -26,6 +26,37 @@ export const registerInfographicsLink = async (): Promise<void> => {
 
         for (const character of charactersList) {
 
+            // Récupérer l'url de l'infographie
+            const defaultUrl = baseUrl + character.value.toLowerCase() + '/';
+
+            // Vérifier si le lien est valide et ne renvoie pas une erreur 404 (avec fetch)
+            const response = await fetch(defaultUrl);
+            if (response.status !== 404) {
+
+                // Ouvrir la page de l'infographie
+                await page.goto(defaultUrl, { waitUntil: 'networkidle2' });
+
+                // Récupérer l'url de l'infographie
+                const url = page.url();
+
+                // Enregistrer l'infographie dans la base de données
+                const infographic: Infographic = {
+                    character: character.name,
+                    build: 'default',
+                    url: url,
+                }
+
+                try {
+                    if (await userHasInfographic(character.name, 'default')) {
+                        // TODO : Mettre à jour l'infographie
+                    } else {
+                        addInfographic(infographic);
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de l'enregistrement de l'infographie:", error);
+                }
+            }
+
             for (const build of listBuilds) {
 
                 const url = baseUrl + character.value.toLowerCase() + '-' + build + '/';

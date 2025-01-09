@@ -26,16 +26,18 @@ export interface SlashCommand {
     name: string,
     data: SlashCommandBuilder | any,
     async execute: (interaction: CommandInteraction) => Promise<void>
+    async execute?: (interaction: CommandInteraction) => Promise<void>
+    async autocomplete?: (interaction: CommandInteraction) => Promise<void>
 }
 
 // Database interfaces
 
-export interface User {
+export type User = {
     id_discord: string,
     uid_genshin: string | null; 
 }
 
-export interface PlayerCharacter {
+export type PlayerCharacter = {
     uid_genshin: string,
     character_id: number,
     name: string,
@@ -45,7 +47,7 @@ export interface PlayerCharacter {
     icon: string,
 }
 
-export interface UidInfos {
+export type UidInfos = {
     uid: string,
     nickname: string,
     level: number,
@@ -59,7 +61,7 @@ export interface UidInfos {
     playerIcon: string,
 }
 
-export interface Character {
+export type Character = {
     name: string,
     weapon: string,
     vision: string,
@@ -68,7 +70,7 @@ export interface Character {
     value: string,
 }
 
-export interface Infographic {
+export type Infographic = {
     character: string,
     build: string,
     url: string,

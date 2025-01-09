@@ -257,15 +257,6 @@ export function getUserUid(id_discord: string): string {
     return uid_genshin?.uid_genshin || '';
 }
 
-// Supprimer un utilisateur de la base de données (id_discord)
-export function deleteUser(id_discord: string): void {
-    db.prepare(`
-        DELETE FROM users
-        WHERE id_discord = ?
-    `).run(id_discord);
-    // console.log("Utilisateur supprimé de la base de données. 😶‍🌫️");
-}
-
 // Récupérer les informations d'un utilisateur (uid_genshin)
 export function getUidInfos(uid_genshin: string): UidInfos {
     const uid_infos = db.prepare(
@@ -291,6 +282,24 @@ export function getCharactersList(): Character[] {
         `SELECT * FROM characters`
     ).all() as { name: string, weapon: string, vision: string, region: string, portraitLink: string, value: string }[];
     return characters;
+}
+
+export function getCharacterInfos(value: string): Character {
+    const character = db.prepare(
+        `SELECT * FROM characters 
+        WHERE value = ?`
+    ).get(value);
+
+    return character as Character;
+}
+
+export function getCharacterBuilds(name: string): Infographic[] {
+    const builds = db.prepare(
+        `SELECT * FROM infographics 
+        WHERE character = ?`
+    ).all(name) as Infographic[];
+
+    return builds;
 }
 
 /* ======================================================= UPDATE ======================================================= */
