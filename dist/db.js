@@ -14,10 +14,11 @@ exports.userHasUidInfos = userHasUidInfos;
 exports.userHasCharacter = userHasCharacter;
 exports.userHasInfographic = userHasInfographic;
 exports.getUserUid = getUserUid;
-exports.deleteUser = deleteUser;
 exports.getUidInfos = getUidInfos;
 exports.getPlayerCharacters = getPlayerCharacters;
 exports.getCharactersList = getCharactersList;
+exports.getCharacterInfos = getCharacterInfos;
+exports.getCharacterBuilds = getCharacterBuilds;
 exports.updateUidUser = updateUidUser;
 exports.updateCharacter = updateCharacter;
 exports.updateUidInfos = updateUidInfos;
@@ -231,14 +232,6 @@ function getUserUid(id_discord) {
         WHERE id_discord = ?`).get(id_discord);
     return uid_genshin?.uid_genshin || '';
 }
-// Supprimer un utilisateur de la base de données (id_discord)
-function deleteUser(id_discord) {
-    exports.db.prepare(`
-        DELETE FROM users
-        WHERE id_discord = ?
-    `).run(id_discord);
-    // console.log("Utilisateur supprimé de la base de données. 😶‍🌫️");
-}
 // Récupérer les informations d'un utilisateur (uid_genshin)
 function getUidInfos(uid_genshin) {
     const uid_infos = exports.db.prepare(`SELECT * FROM uid_infos 
@@ -255,6 +248,16 @@ function getPlayerCharacters(uid_genshin) {
 function getCharactersList() {
     const characters = exports.db.prepare(`SELECT * FROM characters`).all();
     return characters;
+}
+function getCharacterInfos(value) {
+    const character = exports.db.prepare(`SELECT * FROM characters 
+        WHERE value = ?`).get(value);
+    return character;
+}
+function getCharacterBuilds(name) {
+    const builds = exports.db.prepare(`SELECT * FROM infographics 
+        WHERE character = ?`).all(name);
+    return builds;
 }
 /* ======================================================= UPDATE ======================================================= */
 // Modifier les informations d'un utilisateur (id_discord, uid_genshin)
