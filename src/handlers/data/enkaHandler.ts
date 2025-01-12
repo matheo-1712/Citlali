@@ -100,7 +100,6 @@ export const registerCharactersEnka = async (data: any): Promise<boolean> => {
                 }
             }
         }
-        // console.log(`Mise à jour des informations pour l'utilisateur ${uid_infos.nickname} avec succès.`);
         return true;
 
     } catch (error) {

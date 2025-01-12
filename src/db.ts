@@ -235,7 +235,7 @@ export function userHasCharacter(uid_genshin: string, character_id: number): boo
 }
 
 // Vérifier si l'infographie existe dans la base de données (character, build)
-export function userHasInfographic(character: string, build: string): boolean {
+export function characterHasInfographic(character: string, build: string): boolean {
     const user = db.prepare(
         `SELECT * FROM infographics 
         WHERE character = ? AND build = ?`
@@ -374,6 +374,29 @@ export function updateUidInfos(uid_infos: UidInfos): boolean {
 
     } catch (error) {
         console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
+        return false;
+    }
+}
+
+export function updateInfographic(infographic: Infographic): boolean {
+    try {
+        // Obtenir les colonnes et les placeholders pour la mise à jour
+        const columns = Object.keys(infographic).filter(key => key !== 'character' && key !== 'build');
+        const values = Object.values(infographic).filter(value => value !== infographic.character && value !== infographic.build);
+
+        // Construire les parties de la requête SQL (colonne = ?)
+        const setClause = columns.map(column => `${column} = ?`).join(", ");
+
+        // Ajouter l'UID à la fin de la requête pour la condition WHERE
+        const query = `UPDATE infographics SET ${setClause} WHERE character = ? AND build = ?`;
+
+        // Exécuter la requête avec les valeurs
+        db.prepare(query).run(...values, infographic.character, infographic.build);
+
+        return true;
+
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour de l'infographie:", error);
         return false;
     }
 }

@@ -1,5 +1,5 @@
 import puppeteer from "puppeteer";
-import { addInfographic, getCharactersList, userHasInfographic } from "../../db";
+import { addInfographic, characterHasInfographic, getCharactersList, updateInfographic } from "../../db";
 import { Infographic } from "../../types";
 
 export const registerInfographicsLink = async (): Promise<void> => {
@@ -47,8 +47,8 @@ export const registerInfographicsLink = async (): Promise<void> => {
                 }
 
                 try {
-                    if (await userHasInfographic(character.name, 'default')) {
-                        // TODO : Mettre à jour l'infographie
+                    if (await characterHasInfographic(character.name, 'default')) {
+                        updateInfographic(infographic);
                     } else {
                         addInfographic(infographic);
                     }
@@ -79,8 +79,8 @@ export const registerInfographicsLink = async (): Promise<void> => {
                     }
 
                     try {
-                        if (await userHasInfographic(character.name, build)) {
-                            // TODO : Mettre à jour l'infographie
+                        if (await characterHasInfographic(character.name, build)) {
+                            updateInfographic(infographic);
                         } else {
                             addInfographic(infographic);
                         }
