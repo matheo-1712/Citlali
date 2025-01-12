@@ -12,7 +12,7 @@ exports.userExists = userExists;
 exports.userHasUid = userHasUid;
 exports.userHasUidInfos = userHasUidInfos;
 exports.userHasCharacter = userHasCharacter;
-exports.userHasInfographic = userHasInfographic;
+exports.characterHasInfographic = characterHasInfographic;
 exports.getUserUid = getUserUid;
 exports.getUidInfos = getUidInfos;
 exports.getPlayerCharacters = getPlayerCharacters;
@@ -22,6 +22,7 @@ exports.getCharacterBuilds = getCharacterBuilds;
 exports.updateUidUser = updateUidUser;
 exports.updateCharacter = updateCharacter;
 exports.updateUidInfos = updateUidInfos;
+exports.updateInfographic = updateInfographic;
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 const path_1 = require("path");
 // Initialiser la base de données
@@ -218,7 +219,7 @@ function userHasCharacter(uid_genshin, character_id) {
     return true;
 }
 // Vérifier si l'infographie existe dans la base de données (character, build)
-function userHasInfographic(character, build) {
+function characterHasInfographic(character, build) {
     const user = exports.db.prepare(`SELECT * FROM infographics 
         WHERE character = ? AND build = ?`).get(character, build);
     if (user === undefined)
@@ -323,4 +324,21 @@ function updateUidInfos(uid_infos) {
         return false;
     }
 }
-// TODO : Mettre à jour l'infographie
+function updateInfographic(infographic) {
+    try {
+        // Obtenir les colonnes et les placeholders pour la mise à jour
+        const columns = Object.keys(infographic).filter(key => key !== 'character' && key !== 'build');
+        const values = Object.values(infographic).filter(value => value !== infographic.character && value !== infographic.build);
+        // Construire les parties de la requête SQL (colonne = ?)
+        const setClause = columns.map(column => `${column} = ?`).join(", ");
+        // Ajouter l'UID à la fin de la requête pour la condition WHERE
+        const query = `UPDATE infographics SET ${setClause} WHERE character = ? AND build = ?`;
+        // Exécuter la requête avec les valeurs
+        exports.db.prepare(query).run(...values, infographic.character, infographic.build);
+        return true;
+    }
+    catch (error) {
+        console.error("Erreur lors de la mise à jour de l'infographie:", error);
+        return false;
+    }
+}

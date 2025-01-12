@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ComponentType, EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ColorResolvable, ComponentType, EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
 import { Character, Infographic, SlashCommand } from "../types";
 import { getCharacterBuilds, getCharacterInfos } from "../db";
 
@@ -27,7 +27,6 @@ export const command: SlashCommand = {
             // Récupérer les informations du personnage
             if (characterValue) {
                 characterInfos = getCharacterInfos(characterValue);
-                console.log(characterInfos);
             } else {
                 await interaction.reply("Une erreur est survenue lors de la récupération de la value du personnage.");
                 return;
@@ -36,19 +35,69 @@ export const command: SlashCommand = {
             // Obtenir la liste des infographies disponibles pour le personnage
             if (characterInfos) {
                 characterBuilds = getCharacterBuilds(characterInfos.name);
-                console.log(characterBuilds);
             } else {
                 await interaction.reply("Une erreur est survenue lors de la récupération du nom du personnage.");
                 return;
             }
 
+            // Gestion des informations de l'embed
+
+            // Déclaration des variables
+            let embedColor: ColorResolvable;
+            let elementEmote: string;
+            let weaponTranslation: string;
+            let weaponEmote: string;
+
+            // Gestion de l'arme 
+            switch (characterInfos.weapon) {
+                case "Sword": weaponTranslation = "Épée"; weaponEmote = "<:icon_sword:1328118474588815401>"; break;
+                case "Claymore": weaponTranslation = "Claymore"; weaponEmote = "<:icon_claymore:1328118750733537302>"; break;
+                case "Polearm": weaponTranslation = "Lance"; weaponEmote = "<:icon_lance:1328117598683926558>"; break;
+                case "Catalyst": weaponTranslation = "Catalyseur"; weaponEmote = "<:icon_catalyseur:1328118645586526239>"; break;
+                case "Bow": weaponTranslation = "Arc"; weaponEmote = "<:icon_arc:1328116772443787315>"; break;
+                default: weaponTranslation = "Non trouvé"; weaponEmote = "<:Citlali_ok:1326335465619718241>"; break;
+            }
+
+            // Couleur de l'embed en fonction de sa vision  
+            switch (characterInfos.vision) {
+                case "Pyro": embedColor = "#f51e0f"; elementEmote = "<:Pyro:1328111225954893864>"; break;
+                case "Hydro": embedColor = "#0f8df5"; elementEmote = "<:Hydro:1328111284721422418>"; break;
+                case "Anemo": embedColor = "#0ff5a4"; elementEmote = "<:Anemo:1328112279585292298>"; break;
+                case "Cryo": embedColor = "#0fdaf5"; elementEmote = "<:Cryo:1328111431534772284>"; break;
+                case "Electro": embedColor = "#8d0ff5"; elementEmote = "<:Electro:1328111540888408196>"; break;
+                case "Geo": embedColor = "#f5bb0f"; elementEmote = "<:Geo:1328111327020978337>"; break;
+                case "Dendro": embedColor = "#13f50f"; elementEmote = "<:Dendro:1328111354866831440>"; break;
+                default: embedColor = "#ffffff"; elementEmote = "<:Citlali_ok:1326335465619718241>"; break;
+            }
+
             // Préparation de l'embed
             const embed = new EmbedBuilder()
-                .setAuthor({
-                    name: "Citlali",
-                })
+                .setColor(embedColor)
+                .addFields(
+                    {
+                        name: "Nom :",
+                        value: characterInfos.name,
+                        inline: true
+                    },
+                    {
+                        name: "Vision :",
+                        value: characterInfos.vision + " " + elementEmote,
+                        inline: true
+                    },
+                    {
+                        name: "Nationalité :",
+                        value: characterInfos.region,
+                        inline: false
+                    },
+                    {
+                        name: "Arme :",
+                        value: weaponTranslation + " " + weaponEmote,
+                        inline: true
+                    },
+                )
+                .setThumbnail(characterInfos.portraitLink)
                 // Affichage de la première infographie
-                .setImage(`${characterBuilds[0].url}`)
+                .setImage(characterBuilds[0].url ?? "https://furina.antredesloutres.fr/infographie/default_Snezhnaya.png")
                 .setFooter({
                     text: "Crédits : Keqing Mains - Citlali",
                 }).setTimestamp();
@@ -104,12 +153,12 @@ export const command: SlashCommand = {
 
                 // Éditer le message initial avec l'embed correspondant
                 await interaction.editReply({
-                    content: 'Voici l\'infographie correspondante :',
+                    content: 'Voici l\'infographie du build : ' + build.build,
                     embeds: [embed.setImage(url)],
                     components: actionRows
                 });
             });
-            
+
             collector.on('end', async i => {
                 await interaction.editReply({ components: [] });
             });

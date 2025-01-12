@@ -400,5 +400,3 @@ export function updateInfographic(infographic: Infographic): boolean {
         return false;
     }
 }
-
-// TODO : Mettre à jour l'infographie

@@ -9,13 +9,13 @@ const db_1 = require("../../db");
 const registerInfographicsLink = async () => {
     const baseUrl = 'https://keqingmains.com/i/';
     const listBuilds = [
-        "freeze", "melt", "support", "melt-build", "teams", "burgeon-build", "melt-bunny-bomber-dps-build",
+        "freeze", "melt-build", "melt", "melt-dps", "support", "teams", "burgeon-build", "melt-bunny-bomber-dps-build",
         "melt-charged-shot-dps-build", "teams", "bloom", "dps", "support", "mechanics", "quickswap", "support",
-        "on-field-dps", "c6-aggravate", "hyperbloom", "cryo-dps", "physical-dps", "freeze", "melt", "quadratic-scaling",
+        "c6-aggravate", "hyperbloom", "cryo-dps", "physical-dps", "freeze", "melt", "quadratic-scaling",
         "driver", "sunfire", "electro", "aggravate", "burgeon", "on-field-dps", "nilou-bloom", "off-field-support",
         "on-field-driver", "on-field-dps-build", "c6-dps", "reaction", "off-field", "aggravate", "hyperbloom",
         "on-field", "physical", "transformative", "reverse-melt", "off-field", "on-field", "quicken",
-        "burgeon", "freeze-and-mono-cryo-dps", "melt-dps", "pyro", "shielder"
+        "burgeon", "freeze-and-mono-cryo-dps", "pyro", "shielder"
     ];
     // Lancer le navigateur
     const browser = await puppeteer_1.default.launch({ headless: true });
@@ -35,12 +35,12 @@ const registerInfographicsLink = async () => {
                 // Enregistrer l'infographie dans la base de données
                 const infographic = {
                     character: character.name,
-                    build: 'default',
+                    build: 'Classique',
                     url: url,
                 };
                 try {
-                    if (await (0, db_1.userHasInfographic)(character.name, 'default')) {
-                        // TODO : Mettre à jour l'infographie
+                    if ((0, db_1.characterHasInfographic)(character.name, 'Classique')) {
+                        (0, db_1.updateInfographic)(infographic);
                     }
                     else {
                         (0, db_1.addInfographic)(infographic);
@@ -59,15 +59,26 @@ const registerInfographicsLink = async () => {
                     await page.goto(url, { waitUntil: 'networkidle2' });
                     // Obtenir l'URL finale après exécution du JavaScript
                     const finalUrl = page.url(); // Ce sera l'URL finale après redirection
+                    // Gestion du nom des builds
+                    let buildName;
+                    if (build === 'melt-build' || build === 'melt-dps') {
+                        buildName = 'Melt';
+                    }
+                    else if (build === 'on-field-dps-build' || build === 'on-field-dps') {
+                        buildName = 'On-Field';
+                    }
+                    else {
+                        buildName = build.charAt(0).toUpperCase() + build.slice(1);
+                    }
                     // Enregistrer l'infographie dans la base de données
                     const infographic = {
                         character: character.name,
-                        build: build,
+                        build: buildName,
                         url: finalUrl,
                     };
                     try {
-                        if (await (0, db_1.userHasInfographic)(character.name, build)) {
-                            // TODO : Mettre à jour l'infographie
+                        if ((0, db_1.characterHasInfographic)(character.name, buildName)) {
+                            (0, db_1.updateInfographic)(infographic);
                         }
                         else {
                             (0, db_1.addInfographic)(infographic);
