@@ -1,4 +1,4 @@
-import { ActionRowBuilder, ButtonBuilder, ColorResolvable, ComponentType, EmbedBuilder, MessageFlags, SlashCommandBuilder } from "discord.js";
+import { ActionRowBuilder, ButtonBuilder, ColorResolvable, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { Character, Infographic, SlashCommand } from "../types";
 import { getCharacterBuilds, getCharacterInfos } from "../db";
 
@@ -55,7 +55,7 @@ export const command: SlashCommand = {
                 case "Polearm": weaponTranslation = "Lance"; weaponEmote = "<:icon_lance:1328117598683926558>"; break;
                 case "Catalyst": weaponTranslation = "Catalyseur"; weaponEmote = "<:icon_catalyseur:1328118645586526239>"; break;
                 case "Bow": weaponTranslation = "Arc"; weaponEmote = "<:icon_arc:1328116772443787315>"; break;
-                default: weaponTranslation = "Non trouvé"; weaponEmote = "<:Citlali_ok:1326335465619718241>"; break;
+                default: weaponTranslation = "Non trouvé"; weaponEmote = ""; break;
             }
 
             // Couleur de l'embed en fonction de sa vision  
@@ -67,7 +67,7 @@ export const command: SlashCommand = {
                 case "Electro": embedColor = "#8d0ff5"; elementEmote = "<:Electro:1328111540888408196>"; break;
                 case "Geo": embedColor = "#f5bb0f"; elementEmote = "<:Geo:1328111327020978337>"; break;
                 case "Dendro": embedColor = "#13f50f"; elementEmote = "<:Dendro:1328111354866831440>"; break;
-                default: embedColor = "#ffffff"; elementEmote = "<:Citlali_ok:1326335465619718241>"; break;
+                default: embedColor = "#ffffff"; elementEmote = ""; break;
             }
 
             // Préparation de l'embed

@@ -93,9 +93,6 @@ export const initializeDatabase = () => {
     console.log("Base de données initialisée.");
 };
 
-// TODO : Repasser sur chaque fonction pour compacter les fonctions identiques et rendre le code plus lisible possible
-
-
 /* ======================================================= ADD ======================================================= */
 
 // Ajouter un utilisateur à la base de données (id_discord, uid_genshin)
