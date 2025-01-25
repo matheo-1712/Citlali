@@ -1,10 +1,12 @@
-import puppeteer from "puppeteer";
+import puppeteer, { Browser, Page } from "puppeteer";
 import { Infographic } from "../../db/class/Infographic";
 import { Character } from "../../db/class/Character";
 
 
 export const registerInfographicsLink = async (): Promise<void> => {
 
+    let page: Page;
+    let browser: Browser;
     const baseUrl = 'https://keqingmains.com/i/'
 
     const listBuilds = [
@@ -17,9 +19,15 @@ export const registerInfographicsLink = async (): Promise<void> => {
         "burgeon", "freeze-and-mono-cryo-dps", "pyro", "shielder"
     ];
 
+    try {
     // Lancer le navigateur
-    const browser = await puppeteer.launch({ headless: true });
-    const page = await browser.newPage();
+    browser = await puppeteer.launch({ headless: true });
+    page = await browser.newPage();
+    }
+    catch (error) {
+        console.error("Erreur lors du lancement du navigateur de puppeteer:", error);
+        return;
+    }
 
     try {
 

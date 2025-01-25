@@ -71,19 +71,23 @@ export class UidInfos implements UidInfosType {
     // Mettre à jour un utilisateur dans la base de données
     static async update(uid_infos: UidInfosType): Promise<boolean> {
         try {
-            // Obtenir les colonnes et les placeholders
-            const columns = Object.keys(uid_infos).join(", ");
-            const values = Object.values(uid_infos);
-
-            // Construire la requête SQL sécurisée avec des placeholders
-            const query = `UPDATE uid_infos SET ${columns} WHERE uid = ?`;
-
+            // Récupérer les clés (noms des colonnes) et les valeurs
+            const columns = Object.keys(uid_infos).filter(key => key !== 'uid');
+            const values = Object.values(uid_infos).filter(value => value !== uid_infos.uid);
+    
+            // Construire les parties de la requête SQL (colonne = ?)
+            const setClause = columns.map(column => `${column} = ?`).join(", ");
+    
+            // Ajouter l'UID à la fin de la requête pour la condition WHERE
+            const query = `UPDATE uid_infos SET ${setClause} WHERE uid = ?`;
+    
             // Exécuter la requête avec les valeurs
             db.prepare(query).run(...values, uid_infos.uid);
-
+    
             return true;
+    
         } catch (error) {
-            console.error(error);
+            console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
             return false;
         }
     }

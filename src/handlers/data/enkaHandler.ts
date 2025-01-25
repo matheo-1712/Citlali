@@ -35,8 +35,7 @@ export const registerUidInfosEnka = async (data: any): Promise<boolean> => {
             theaterAct: Number(data.player.theaterAct),
             theaterMode: data.player.theaterMode,
             worldLevel: Number(data.player.levels.world),
-            playerIcon: data.player.profilePicture.assets.oldIcon,
-
+            playerIcon: data.player.profilePicture.assets.icon
         }
 
         if (await UidInfos.exists(uid_infos.uid)) {

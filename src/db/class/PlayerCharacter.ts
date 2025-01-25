@@ -57,19 +57,34 @@ export class PlayerCharacter implements PlayerCharacterType {
     // Mettre à jour un personnage
     static async update(character: PlayerCharacterType): Promise<boolean> {
         try {
-            // Obtenir les colonnes et les placeholders
-            const columns = Object.keys(character).join(", ");
-            const values = Object.values(character);
+            // Obtenir les colonnes et leurs placeholders pour la mise à jour
+            const columns = Object.keys(character)
+                .filter(key => key !== 'uid_genshin' && key !== 'character_id') // Exclure les conditions de la requête
+                .map(key => `${key} = ?`)
+                .join(", ");
 
-            // Construire la requête SQL sécurisée avec des placeholders
+            // Vérifier si des colonnes existent pour la mise à jour
+            if (!columns) {
+                throw new Error("Aucune donnée valide à mettre à jour.");
+            }
+
+            // Préparer les valeurs pour les colonnes à mettre à jour
+            const values = Object.keys(character)
+                .filter(key => key !== 'uid_genshin' && key !== 'character_id')
+                .map(key => character[key as keyof PlayerCharacter]);
+
+            // Ajouter les valeurs des conditions à la fin (uid_genshin et character_id)
+            values.push(character.uid_genshin, character.character_id);
+
+            // Construire la requête SQL sécurisée
             const query = `UPDATE players_characters SET ${columns} WHERE uid_genshin = ? AND character_id = ?`;
 
             // Exécuter la requête avec les valeurs
-            db.prepare(query).run(...values, character.uid_genshin, character.character_id);
+            db.prepare(query).run(...values);
 
             return true;
         } catch (error) {
-            console.error(error);
+            console.error(`Erreur lors de la modification du personnage ${character.name}:`, error);
             return false;
         }
     }

@@ -48,12 +48,10 @@ export const command: SlashCommand = {
                 return;
             }
 
-            // Récupérer les informations de l'utilisateur
-            const uid_infos = await UidInfos.getPlayerUidInfos(uid);
-
             // Si l'option "rafraichir" est activée, mettre à jour les informations de l'utilisateur
             if (interaction.options.get("rafraichir")?.value === "maj") {
                 try {
+                    console.log("Mise à jour des informations de l'utilisateur...");
                     // Récupérer les données de l'UID
                     const data = await getEnkaData(uid);
 
@@ -78,6 +76,8 @@ export const command: SlashCommand = {
                 }
             }
 
+            // Récupérer les informations de l'utilisateur
+            const uid_infos = await UidInfos.getPlayerUidInfos(uid);
 
             // Récupérer les données de l'UID
             const characters = PlayerCharacter.getPlayerCharacters(uid);

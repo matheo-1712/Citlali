@@ -43,19 +43,23 @@ export class UserGi implements UserType {
     // Mettre à jour un utilisateur dans la base de données
     static async update(object: UserType): Promise<boolean> {
         try {
-            // Obtenir les colonnes et les placeholders
-            const columns = Object.keys(object).join(", ");
-            const values = Object.values(object);
-
-            // Construire la requête SQL sécurisée avec des placeholders
-            const query = `UPDATE users SET ${columns} WHERE id_discord = ?`;
-
+            // Récupérer les clés (noms des colonnes) et les valeurs
+            const columns = Object.keys(object).filter(key => key !== 'uid');
+            const values = Object.values(object).filter(value => value !== object.uid_genshin);
+    
+            // Construire les parties de la requête SQL (colonne = ?)
+            const setClause = columns.map(column => `${column} = ?`).join(", ");
+    
+            // Ajouter l'UID à la fin de la requête pour la condition WHERE
+            const query = `UPDATE uid_infos SET ${setClause} WHERE uid = ?`;
+    
             // Exécuter la requête avec les valeurs
-            db.prepare(query).run(...values, object.id_discord);
-
+            db.prepare(query).run(...values, object.uid_genshin);
+    
             return true;
+    
         } catch (error) {
-            console.error(error);
+            console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
             return false;
         }
     }

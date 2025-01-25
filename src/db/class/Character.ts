@@ -55,19 +55,31 @@ export class Character implements CharacterType {
     // Mettre à jour un personnage
     static async update(character: Character): Promise<boolean> {
         try {
-            // Obtenir les colonnes et les placeholders
-            const columns = Object.keys(character).join(", ");
-            const values = Object.values(character);
-
-            // Construire la requête SQL sécurisée avec des placeholders
-            const query = `UPDATE characters SET ${columns} WHERE value = ?`;
-
+            // Obtenir les colonnes et leurs placeholders pour la mise à jour
+            const columns = Object.keys(character)
+                // Exclure les conditions de la requête
+                .map(key => `${key} = ?`)
+                .join(", ");
+    
+            // Vérifier si des colonnes existent pour la mise à jour
+            if (!columns) {
+                throw new Error("Aucune donnée valide à mettre à jour.");
+            }
+    
+            // Préparer les valeurs pour les colonnes à mettre à jour
+            const values = Object.keys(character)
+                .filter(key => key !== 'uid_genshin' && key !== 'character_id')
+                .map(key => character[key as keyof Character]);
+    
+            // Construire la requête SQL sécurisée
+            const query = `UPDATE players_characters SET ${columns} WHERE value = ?`;
+    
             // Exécuter la requête avec les valeurs
-            db.prepare(query).run(...values, character.value);
-
+            db.prepare(query).run(...values);
+    
             return true;
         } catch (error) {
-            console.error(error);
+            console.error(`Erreur lors de la modification du personnage ${character.name}:`, error);
             return false;
         }
     }
