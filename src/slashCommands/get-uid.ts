@@ -1,7 +1,9 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import { getPlayerCharacters, getUidInfos, getUserUid } from "../db";
 import { getEnkaData, registerCharactersEnka, registerUidInfosEnka } from "../handlers/data/enkaHandler";
+import { UserGi } from "../db/class/UserGi";
+import { PlayerCharacter } from "../db/class/PlayerCharacter";
+import { UidInfos } from "../db/class/UidInfos";
 
 export const command: SlashCommand = {
     name: "get-uid",
@@ -37,7 +39,8 @@ export const command: SlashCommand = {
             }
 
             // Récupérer l'UID Genshin
-            const uid = getUserUid(member);
+            const uid = UserGi.getUID(member);
+            console.log(uid);
 
             // Vérifier si l'UID est enregistré
             if (!uid) {
@@ -46,7 +49,7 @@ export const command: SlashCommand = {
             }
 
             // Récupérer les informations de l'utilisateur
-            const uid_infos = getUidInfos(uid);
+            const uid_infos = await UidInfos.getPlayerUidInfos(uid);
 
             // Si l'option "rafraichir" est activée, mettre à jour les informations de l'utilisateur
             if (interaction.options.get("rafraichir")?.value === "maj") {
@@ -77,7 +80,7 @@ export const command: SlashCommand = {
 
 
             // Récupérer les données de l'UID
-            const characters = getPlayerCharacters(uid);
+            const characters = PlayerCharacter.getPlayerCharacters(uid);
 
             // Répondre à l'utilisateur
             const embed = new EmbedBuilder()

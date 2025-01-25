@@ -1,8 +1,12 @@
 import { Events, Interaction } from "discord.js";
 import { BotEvent } from "../types";
-import { getCharactersList } from "../db";
+import { Character } from "../db/class/Character";
 
-const characterList = getCharactersList();
+let characterList: Character[] = [];
+
+(async () => {
+    characterList = await Character.getAll();
+})();
 
 const event: BotEvent = {
     name: Events.InteractionCreate,

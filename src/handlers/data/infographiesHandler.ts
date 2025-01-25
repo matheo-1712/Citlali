@@ -1,6 +1,7 @@
 import puppeteer from "puppeteer";
-import { addInfographic, characterHasInfographic, getCharactersList, updateInfographic } from "../../db";
-import { Infographic } from "../../types";
+import { Infographic } from "../../db/class/Infographic";
+import { Character } from "../../db/class/Character";
+
 
 export const registerInfographicsLink = async (): Promise<void> => {
 
@@ -22,7 +23,7 @@ export const registerInfographicsLink = async (): Promise<void> => {
 
     try {
 
-        const charactersList = getCharactersList();
+        const charactersList = await Character.getAll();
 
         for (const character of charactersList) {
 
@@ -47,10 +48,10 @@ export const registerInfographicsLink = async (): Promise<void> => {
                 }
 
                 try {
-                    if (characterHasInfographic(character.name, 'Classique')) {
-                        updateInfographic(infographic);
+                    if (await Infographic.exists(infographic)) {
+                        Infographic.update(infographic);
                     } else {
-                        addInfographic(infographic);
+                        Infographic.add(infographic);
                     }
                 } catch (error) {
                     console.error("Erreur lors de l'enregistrement de l'infographie:", error);
@@ -92,10 +93,10 @@ export const registerInfographicsLink = async (): Promise<void> => {
                     }
 
                     try {
-                        if (characterHasInfographic(character.name, buildName)) {
-                            updateInfographic(infographic);
+                        if (await Infographic.exists(infographic)) {
+                            Infographic.update(infographic);
                         } else {
-                            addInfographic(infographic);
+                            Infographic.add(infographic);
                         }
                     } catch (error) {
                         console.error("Erreur lors de l'enregistrement de l'infographie:", error);

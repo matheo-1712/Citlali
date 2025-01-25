@@ -32,48 +32,4 @@ export interface SlashCommand {
 
 // Database interfaces
 
-export type User = {
-    id_discord: string,
-    uid_genshin: string | null; 
-}
-
-export type PlayerCharacter = {
-    uid_genshin: string,
-    character_id: number,
-    name: string,
-    element: string,
-    level: number,
-    constellations: number,
-    icon: string,
-}
-
-export type UidInfos = {
-    uid: string,
-    nickname: string,
-    level: number,
-    worldLevel: number,
-    signature: string,
-    finishAchievementNum: number,
-    towerFloor: string,
-    affinityCount: number,
-    theaterAct: number,
-    theaterMode: string,
-    playerIcon: string,
-}
-
-export type Character = {
-    name: string,
-    weapon: string,
-    vision: string,
-    region: string,
-    portraitLink: string,
-    value: string,
-}
-
-export type Infographic = {
-    character: string,
-    build: string,
-    url: string,
-}
-
 export { };

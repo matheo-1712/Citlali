@@ -1,6 +1,6 @@
 import { Wrapper } from 'enkanetwork.js';
-import { PlayerCharacter, UidInfos } from '../../types';
-import { addCharacter, addUidInfos, updateCharacter, updateUidInfos, userHasCharacter, userHasUidInfos } from '../../db';
+import { UidInfos } from '../../db/class/UidInfos';
+import { PlayerCharacter } from '../../db/class/PlayerCharacter';
 
 export const getEnkaData = async (uid: string): Promise<any> => {
     try {
@@ -39,11 +39,9 @@ export const registerUidInfosEnka = async (data: any): Promise<boolean> => {
 
         }
 
-        const uidInfos = userHasUidInfos(uid_infos.uid);
-
-        if (uidInfos) {
+        if (await UidInfos.exists(uid_infos.uid)) {
             try {
-                updateUidInfos(uid_infos);
+                await UidInfos.update(uid_infos);
                 return true;
             }
             catch (error) {
@@ -55,7 +53,7 @@ export const registerUidInfosEnka = async (data: any): Promise<boolean> => {
 
             // Ajouter les informations de l'utilisateur
             try {
-                addUidInfos(uid_infos);
+                await UidInfos.add(uid_infos);
                 return true;
             }
             catch (error) {
@@ -85,16 +83,16 @@ export const registerCharactersEnka = async (data: any): Promise<boolean> => {
                 icon: characterData.assets.icon,
             }
 
-            const characterExists = userHasCharacter(character.uid_genshin, character.character_id);
+            const characterExists = await PlayerCharacter.exists(character.uid_genshin, character.character_id);
             if (characterExists) {
                 try {
-                    updateCharacter(character);
+                    await PlayerCharacter.update(character);
                 } catch (error) {
                     console.error("Erreur lors de la mise à jour du personnage:", error);
                 }
             } else {
                 try {
-                    addCharacter(character);
+                    await PlayerCharacter.add(character);
                 } catch (error) {
                     console.error("Erreur lors de l'ajout du personnage:", error);
                 }

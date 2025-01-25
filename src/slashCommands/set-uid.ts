@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import {  addUser, userExists, userHasUid } from "../db";
 import { getEnkaData, registerCharactersEnka, registerUidInfosEnka } from "../handlers/data/enkaHandler";
+import { UserGi } from "../db/class/UserGi";
 
 export const command: SlashCommand = {
     name: "set-uid",
@@ -20,8 +20,7 @@ export const command: SlashCommand = {
         const uid = interaction.options.get("uid")?.value?.toString();
 
         // Récupération de l'utilisateur
-        const user = interaction.user;
-        const id_discord = user.id;
+        const id_discord = interaction.user.id;
 
         // Vérifie si le message est vide
         if (!uid) {
@@ -30,15 +29,13 @@ export const command: SlashCommand = {
         }
 
         // Vérifier si l'utilisateur a déjà un UID d'enregistré
-        const hasUidRegistered = userExists(id_discord);
-        if (hasUidRegistered) {
+        if (await UserGi.exists(id_discord)) {
             await interaction.reply({ content: "Vous avez déjà un UID enregistré !" });
             return;
         }
 
         // Vérifier si l'UID est déjà enregistré
-        const uidAlreadyRegistered = userHasUid(uid);
-        if (uidAlreadyRegistered) {
+        if (await UserGi.uidExists(uid)) {
             await interaction.reply({ content: "Cet UID est déjà enregistré !" });
             return;
         }
@@ -51,8 +48,7 @@ export const command: SlashCommand = {
         }
 
         // Enregistrer l'UID dans la base de données
-        const statusAddUser = addUser({ id_discord, uid_genshin: uid });
-        if (!statusAddUser) {
+        if (!await UserGi.add({ id_discord, uid_genshin: uid })) {
             await interaction.reply({ content: "Une erreur est survenue lors de l'enregistrement de votre UID !" });
             return;
         }
@@ -60,20 +56,12 @@ export const command: SlashCommand = {
         try {
             // Récupérer les données de l'UID
             const data = await getEnkaData(uid);
-
-            // Enregistrer les infos de l'UID dans la base de données
             
-            const registerStatusUid = await registerUidInfosEnka(data)
-            
-            if (!registerStatusUid) {
+            if (!await registerUidInfosEnka(data)) {
                 console.error("Erreur lors de l'enregistrement des informations de l'UID !");
             }
-
-            // Enregistrer les infos des personnages dans la base de données
-
-            const registerCharactersStatus = await registerCharactersEnka(data)
             
-            if (!registerCharactersStatus) {
+            if (!await registerCharactersEnka(data)) {
                 console.error("Erreur lors de l'enregistrement des informations des personnages !");
             }
 

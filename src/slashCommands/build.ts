@@ -1,6 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ColorResolvable, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { Character, Infographic, SlashCommand } from "../types";
-import { getCharacterBuilds, getCharacterInfos } from "../db";
+import { Character } from "../db/class/Character";
+import { Infographic } from "../db/class/Infographic";
+import { SlashCommand } from "../types";
 
 export const command: SlashCommand = {
     name: "build",
@@ -26,7 +27,7 @@ export const command: SlashCommand = {
 
             // Récupérer les informations du personnage
             if (characterValue) {
-                characterInfos = getCharacterInfos(characterValue);
+                characterInfos = await Character.getCharacterInfos(characterValue);
             } else {
                 await interaction.reply("Une erreur est survenue lors de la récupération de la value du personnage.");
                 return;
@@ -34,7 +35,7 @@ export const command: SlashCommand = {
 
             // Obtenir la liste des infographies disponibles pour le personnage
             if (characterInfos) {
-                characterBuilds = getCharacterBuilds(characterInfos.name);
+                characterBuilds = await Infographic.getCharacterBuilds(characterInfos.name);
             } else {
                 await interaction.reply("Une erreur est survenue lors de la récupération du nom du personnage.");
                 return;
