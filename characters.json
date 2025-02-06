@@ -81,6 +81,7 @@
         { "name": "Electro-Traveler", "weapon": "Sword", "vision": "Electro", "region":"Inazuma", "portraitLink": "https://furina.antredesloutres.fr/portrait/Lumine.png", "value" : "electro-traveler" },
         { "name": "Geo-Traveler", "weapon": "Sword", "vision": "Geo", "region":"Liyue", "portraitLink": "https://furina.antredesloutres.fr/portrait/Lumine.png", "value" : "geo-traveler" },
         { "name": "Hydro-Traveler", "weapon": "Sword", "vision": "Hydro", "region":"Fontaine", "portraitLink": "https://furina.antredesloutres.fr/portrait/Lumine.png", "value" : "hydro-traveler" },
+        { "name": "Pyro-Traveler", "weapon": "Sword", "vision": "Pyro", "region":"Natlan", "portraitLink": "https://furina.antredesloutres.fr/portrait/Lumine.png", "value" : "pyro-traveler" },
         { "name": "Venti", "weapon": "Bow", "vision": "Anemo", "region":"Mondstat", "portraitLink": "https://furina.antredesloutres.fr/portrait/Venti.png", "value" : "venti" },
         { "name": "Wanderer", "weapon": "Catalyst", "vision": "Anemo", "region":"Inazuma", "portraitLink": "https://furina.antredesloutres.fr/portrait/Wanderer.png", "value" : "wanderer" },
         { "name": "Wriothesley", "weapon": "Catalyst", "vision": "Cryo", "region":"Fontaine", "portraitLink": "https://furina.antredesloutres.fr/portrait/Wriothesley.png", "value" : "wriothesley" },

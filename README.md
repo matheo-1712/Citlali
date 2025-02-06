@@ -1,4 +1,4 @@
-<img src="./z_img/bot/banniere.png">
+<img src="logo.png">
 
 # Citlali
 
