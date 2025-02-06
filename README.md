@@ -1,6 +1,6 @@
 <img src="logo.png">
 
-# Citlali
+#
 
 Citlali est un bot Discord spécialisé pour le jeu **Genshin Impact**.
 
