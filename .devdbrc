@@ -2,5 +2,9 @@
   {
     "type": "sqlite",
     "path": "c:\\Users\\perod\\Documents\\Citlali\\database.sqlite"
+  },
+  {
+    "type": "sqlite",
+    "path": "/home/matheo/Citlali/database.sqlite"
   }
 ]

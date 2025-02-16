@@ -25,6 +25,13 @@ export class Infographic implements InfographicType {
     // Enregistrer un infographique dans la base de données
     static async add(infographic: InfographicType): Promise<boolean> {
         try {
+            const badLink = `https://keqingmains.com/i/${infographic.character.toLowerCase()}/`
+            // Vérifier si le lien est bon
+            if(infographic.url == badLink) 
+            {
+                console.log('URL non conforme')
+                return false
+            }
             // Obtenir les colonnes et les placeholders
             const columns = Object.keys(infographic).join(", ");
             const placeholders = Object.keys(infographic).map(() => "?").join(", ");
@@ -46,6 +53,14 @@ export class Infographic implements InfographicType {
     // Mettre à jour un personnage
     static async update(infographic: Infographic): Promise<boolean> {
         try {
+            const badLink = `https://keqingmains.com/i/${infographic.character.toLowerCase()}/`
+            // Vérifier si le lien est bon
+            if(infographic.url == badLink) 
+            {
+                console.log('URL non conforme')
+                return false
+            }
+
             // Obtenir les colonnes et les placeholders pour la mise à jour
             const columns = Object.keys(infographic).filter(key => key !== 'character' && key !== 'build');
             const values = Object.values(infographic).filter(value => value !== infographic.character && value !== infographic.build);

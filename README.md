@@ -32,6 +32,12 @@ Pour lancer le bot en local, vous devez :
 1. Cloner le dépôt
 2. Installer les dépendances avec `npm install`
 3. Renommer le fichier `.env.example` en `.env` et le remplir avec vos informations
+
+# Pour Linux 
+
+sudo apt update
+sudo apt install -y libgbm1 
+
     
 
 ```env
