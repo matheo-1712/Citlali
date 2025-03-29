@@ -30,6 +30,4 @@ export interface SlashCommand {
     async autocomplete?: (interaction: CommandInteraction) => Promise<void>
 }
 
-// Database interfaces
-
 export { };
