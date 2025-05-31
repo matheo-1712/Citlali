@@ -46,6 +46,7 @@ export const registerInfographicsLink = async (): Promise<void> => {
             Infographic.update(infographic);
           } else {
             Infographic.add(infographic);
+            console.log("Infographie ajoutée:", infographic);
           }
         } catch (error) {
           console.error("Erreur lors de l'enregistrement de l'infographie:", error);

@@ -41,6 +41,9 @@ export const command: SlashCommand = {
                 return;
             }
 
+            // Préparer le lien du guide du personnage
+            const guideLink = `https://keqingmains.com/q/${characterInfos.value}-quickguide/`
+
             // Gestion des informations de l'embed
 
             // Déclaration des variables
@@ -73,6 +76,8 @@ export const command: SlashCommand = {
 
             // Préparation de l'embed
             const embed = new EmbedBuilder()
+                .setTitle(`Build de ${characterInfos.name}`)
+                .setURL(guideLink)
                 .setColor(embedColor)
                 .addFields(
                     {
