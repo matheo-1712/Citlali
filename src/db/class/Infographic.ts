@@ -1,4 +1,5 @@
 import { db } from "../db";
+import {ApiHandler} from "./ApiHandler";
 
 // Type de la classe
 export type InfographicType = {
@@ -126,18 +127,27 @@ export class Infographic implements InfographicType {
         }
     }
 
-
     // Fonction spécifique à la classe /---------------------------------------------------------------------------------------------------------/
 
     // Récupérer les infographies d'un personnage
-    static async getCharacterBuilds(name: string): Promise<Infographic[]> {
+    static async getCharacterBuilds(id: number): Promise<Infographic[]> {
         try {
-            const builds = db.prepare(
-                `SELECT * FROM infographics 
-                WHERE character = ?`
-            ).all(name) as Infographic[];
+            // Récupérer l'URL de l'API
+            const url = await ApiHandler.getApiLink("infographics-getByIdGenshinCharacter");
+            if (!url) return [];
 
-            return builds;
+            // Appel à l'API
+            const response = await fetch(`${url.route}${id}`);
+            const json = await response.json();
+
+            // Vérification et extraction des données
+            if (!json.success || !Array.isArray(json.data)) {
+                console.warn("Réponse inattendue :", json);
+                return [];
+            }
+
+            // Retourne les personnages extraits
+            return json.data as Infographic[];
         } catch (error) {
             console.error(error);
             return [];

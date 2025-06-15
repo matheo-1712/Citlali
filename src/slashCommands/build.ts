@@ -34,15 +34,15 @@ export const command: SlashCommand = {
             }
 
             // Obtenir la liste des infographies disponibles pour le personnage
-            if (characterInfos) {
-                characterBuilds = await Infographic.getCharacterBuilds(characterInfos.name);
+            if (characterInfos && characterInfos.id) {
+                characterBuilds = await Infographic.getCharacterBuilds(characterInfos.id);
             } else {
                 await interaction.reply("Une erreur est survenue lors de la récupération du nom du personnage.");
                 return;
             }
 
             // Préparer le lien du guide du personnage
-            const guideLink = `https://keqingmains.com/q/${characterInfos.value}-quickguide/`
+            const guideLink = `https://keqingmains.com/q/${characterInfos.formatedValue}-quickguide/`
 
             // Gestion des informations de l'embed
 
@@ -105,7 +105,7 @@ export const command: SlashCommand = {
                 // Affichage de la première infographie
                 .setImage(characterBuilds[0].url ?? "https://furina.antredesloutres.fr/infographie/default_Snezhnaya.png")
                 .setFooter({
-                    text: "Crédits : Keqing Mains - Citlali",
+                    text: "Crédits : Keqing Mains - Powered by CitlAPI",
                 }).setTimestamp();
 
             // Création de la liste des builds

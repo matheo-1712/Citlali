@@ -1,33 +1,36 @@
-import { db } from "../db";
+import {db} from "../db";
+import {ApiHandler} from "./ApiHandler";
 
 export type CharacterType = {
+    id?: number,
     name: string,
     weapon: string,
     vision: string,
     region: string,
     portraitLink: string,
-    value: string,
+    formatedValue: string,
 }
 
 export class Character implements CharacterType {
+    id?: number;
     name: string;
     weapon: string;
     vision: string;
     region: string;
     portraitLink: string;
-    value: string;
+    formatedValue: string;
 
-    constructor(name: string, weapon: string, vision: string, region: string, portraitLink: string, value: string) {
+    constructor(name: string, weapon: string, vision: string, region: string, portraitLink: string, formatedValue: string) {
         this.name = name;
         this.weapon = weapon;
         this.vision = vision;
         this.region = region;
         this.portraitLink = portraitLink;
-        this.value = value;
+        this.formatedValue = formatedValue;
     }
 
     toString(): string {
-        return `Character (name: ${this.name}, weapon: ${this.weapon}, vision: ${this.vision}, region: ${this.region}, portraitLink: ${this.portraitLink}, value: ${this.value})`;
+        return `Character (name: ${this.name}, weapon: ${this.weapon}, vision: ${this.vision}, region: ${this.region}, portraitLink: ${this.portraitLink}, value: ${this.formatedValue})`;
     }
 
     // Ajouter un personnage à la base de données
@@ -94,7 +97,7 @@ export class Character implements CharacterType {
             const query = `DELETE FROM characters WHERE value = ?`;
 
             // Exécuter la requête avec les valeurs
-            db.prepare(query).run(...values, character.value);
+            db.prepare(query).run(...values, character.formatedValue);
 
             return true;
         } catch (error) {
@@ -109,7 +112,7 @@ export class Character implements CharacterType {
             const result = db.prepare(
                 `SELECT * FROM characters 
                 WHERE value = ?`
-            ).get(character.value);
+            ).get(character.formatedValue);
 
             return result !== undefined;
         } catch (error) {
@@ -121,15 +124,28 @@ export class Character implements CharacterType {
     // Récupérer tous les personnages
     static async getAll(): Promise<Character[]> {
         try {
-            const characters = db.prepare(
-                `SELECT * FROM characters`
-            ).all() as { name: string, weapon: string, vision: string, region: string, portraitLink: string, value: string }[];
-            return characters;
+            // Récupérer l'URL de l'API
+            const url = await ApiHandler.getApiLink("characters-getAll");
+            if (!url) return [];
+
+            // Appel à l'API
+            const response = await fetch(url.route);
+            const json = await response.json();
+
+            // Vérification et extraction des données
+            if (!json.success || !Array.isArray(json.data)) {
+                console.warn("Réponse inattendue :", json);
+                return [];
+            }
+
+            // Retourne les personnages extraits
+            return json.data as Character[];
         } catch (error) {
-            console.error(error);
+            console.error("Erreur lors de la récupération des personnages :", error);
             return [];
         }
     }
+
 
     // Récupérer un personnage
     static async getCharacterInfos(value: string): Promise<Character> {
@@ -148,7 +164,7 @@ export class Character implements CharacterType {
                 vision: '',
                 region: '',
                 portraitLink: '',
-                value: ''
+                formatedValue: ''
             } as Character;
         }
     }

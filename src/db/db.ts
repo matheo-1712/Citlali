@@ -71,25 +71,5 @@ export const initializeDatabase = () => {
                 url TEXT NOT NULL
             )
         `).run();
-
-
-    // Récupérer les données des personnages depuis le fichier characters.json
-    const characters = require(`${dirname(__dirname)}/../characters.json`).characters;
-
-    // Ajouter les données des personnages dans la table characters seulement si elles n'existent pas déjà
-    characters.forEach((character: Character) => {
-        const characterExists = db.prepare(`
-                SELECT * FROM characters
-                WHERE name = ?
-            `).get(character.name);
-
-        if (!characterExists) {
-            db.prepare(`
-                    INSERT INTO characters (name, weapon, vision, region, portraitLink, value)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                `).run(character.name, character.weapon, character.vision, character.region, character.portraitLink, character.value);
-        }
-    });
-    console.log("Base de données initialisée.");
 };
 

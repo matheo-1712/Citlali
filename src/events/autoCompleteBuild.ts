@@ -24,7 +24,7 @@ const event: BotEvent = {
         const results = filteredChoices.map((choice) => {
             return {
                 name: `${choice.name}`,
-                value: `${choice.value}`
+                value: `${choice.formatedValue}`
             }
         })
         interaction.respond(results.slice(0, 25)).catch(() => {});

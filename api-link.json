@@ -1,0 +1,82 @@
+[
+    {
+        "alias": "characters-getAll",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters",
+        "method": "GET",
+        "parameters": "",
+        "comment": "Obtenir tous les personnages",
+        "description": "Obtenir tous les personnages"
+    },
+    {
+        "alias": "characters-getById",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters/",
+        "method": "GET",
+        "parameters": ":id",
+        "comment": "Obtenir un personnage par son ID",
+        "description": "Obtenir un personnage par son ID"
+    },
+    {
+        "alias": "characters-getByValue",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters/value/",
+        "method": "GET",
+        "parameters": ":value",
+        "comment": "Obtenir un personnage par son formatedValue",
+        "description": "Obtenir un personnage par son formatedValue"
+    },
+    {
+        "alias": "characters-create",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters",
+        "method": "POST",
+        "parameters": "    id: number;\n    name: string;\n    element: string;\n    weapon: string;\n    region: string;\n    rarity: number;\n    icon: string;\n    ascensionStat?: string;\n    formatedValue: string;",
+        "comment": "Créer un personnage",
+        "description": "Créer un personnage"
+    },
+    {
+        "alias": "characters-update",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters",
+        "method": "PUT",
+        "parameters": "",
+        "comment": "Modifier un personnage",
+        "description": "Modifier un personnage"
+    },
+    {
+        "alias": "characters-delete",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters/",
+        "method": "DELETE",
+        "parameters": ":id",
+        "comment": "Supprimer un personnage",
+        "description": "Supprimer un personnage"
+    },
+    {
+        "alias": "infographics-getAll",
+        "route": "https://citlapi.antredesloutres.fr/api/infographics",
+        "method": "GET",
+        "parameters": "",
+        "comment": "Obtenir toutes les infographies",
+        "description": ""
+    },
+    {
+        "alias": "infographics-getById",
+        "route": "https://citlapi.antredesloutres.fr/api/infographics/",
+        "method": "GET",
+        "parameters": ":id",
+        "comment": "Obtenir une infographie par son ID",
+        "description": ""
+    },
+    {
+        "alias": "infographics-getByIdGenshinCharacter",
+        "route": "https://citlapi.antredesloutres.fr/api/infographics/genshin/",
+        "method": "GET",
+        "parameters": ":id",
+        "comment": "Obtenir une infographie par son ID de personnage",
+        "description": ""
+    },
+    {
+        "alias": "infographics-getByJeu",
+        "route": "https://citlapi.antredesloutres.fr/api/infographics/jeu/",
+        "method": "GET",
+        "parameters": ":jeu",
+        "comment": "Obtenir les infographies par le jeu",
+        "description": ""
+    }
+]

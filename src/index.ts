@@ -4,7 +4,7 @@ import { readdirSync } from "fs";
 import { join } from "path";
 import { SlashCommand } from "./types";
 import { initializeDatabase } from "./db/db";
-import { registerInfographicsLink } from "./handlers/data/infographiesHandler";
+import {ApiHandler} from "./db/class/ApiHandler";
 
 dotenv.config();
 
@@ -20,19 +20,10 @@ const client = new Client({
 // Initialisation de la base de données
 try {
     initializeDatabase();
+    ApiHandler.registerApiLink()
 } catch (error) {
     console.error("Erreur lors de l'initialisation de la base de données :", error);
 }
-
-// Lancement de l'enregistrement des infographies
-(async () => {
-    try {
-        await registerInfographicsLink();
-    } catch (error) {
-        console.error("Erreur lors de l'enregistrement des infographies :", error);
-    }
-})();
-
 
 try {
     client.slashCommands = new Collection<string, SlashCommand>();
