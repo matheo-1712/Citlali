@@ -64,3 +64,5 @@ Non affilié à Hoyoverse ou à Discord.
 Merci à tous les développeurs de l'API et du site [EnkaNetwork](https://enka.network) pour leur travail de qualité ainsi.
 
 Merci aussi au développeur [Jelosus2](https://github.com/Jelosus2) du package EnkaNetwork.js 
+
+Merci à [Keqingmains](https://keqingmains.com) pour leur site et leurs infographies.
