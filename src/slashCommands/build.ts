@@ -18,7 +18,7 @@ export const command: SlashCommand = {
 
     execute: async (interaction) => {
 
-        let characterInfos: Character;
+        let characterInfos: Character | null;
         let characterBuilds: Infographic[];
 
         try {
@@ -63,7 +63,7 @@ export const command: SlashCommand = {
             }
 
             // Couleur de l'embed en fonction de sa vision  
-            switch (characterInfos.vision) {
+            switch (characterInfos.element) {
                 case "Pyro": embedColor = "#f51e0f"; elementEmote = "<:Pyro:1328111225954893864>"; break;
                 case "Hydro": embedColor = "#0f8df5"; elementEmote = "<:Hydro:1328111284721422418>"; break;
                 case "Anemo": embedColor = "#0ff5a4"; elementEmote = "<:Anemo:1328112279585292298>"; break;
@@ -87,7 +87,7 @@ export const command: SlashCommand = {
                     },
                     {
                         name: "Vision :",
-                        value: characterInfos.vision + " " + elementEmote,
+                        value: characterInfos.element + " " + elementEmote,
                         inline: true
                     },
                     {

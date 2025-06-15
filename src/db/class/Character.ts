@@ -5,7 +5,7 @@ export type CharacterType = {
     id?: number,
     name: string,
     weapon: string,
-    vision: string,
+    element: string,
     region: string,
     portraitLink: string,
     formatedValue: string,
@@ -15,22 +15,22 @@ export class Character implements CharacterType {
     id?: number;
     name: string;
     weapon: string;
-    vision: string;
+    element: string;
     region: string;
     portraitLink: string;
     formatedValue: string;
 
-    constructor(name: string, weapon: string, vision: string, region: string, portraitLink: string, formatedValue: string) {
+    constructor(name: string, weapon: string, element: string, region: string, portraitLink: string, formatedValue: string) {
         this.name = name;
         this.weapon = weapon;
-        this.vision = vision;
+        this.element = element;
         this.region = region;
         this.portraitLink = portraitLink;
         this.formatedValue = formatedValue;
     }
 
     toString(): string {
-        return `Character (name: ${this.name}, weapon: ${this.weapon}, vision: ${this.vision}, region: ${this.region}, portraitLink: ${this.portraitLink}, value: ${this.formatedValue})`;
+        return `Character (name: ${this.name}, weapon: ${this.weapon}, vision: ${this.element}, region: ${this.region}, portraitLink: ${this.portraitLink}, value: ${this.formatedValue})`;
     }
 
     // Ajouter un personnage à la base de données
@@ -146,27 +146,31 @@ export class Character implements CharacterType {
         }
     }
 
-
     // Récupérer un personnage
-    static async getCharacterInfos(value: string): Promise<Character> {
+    static async getCharacterInfos(value: string): Promise<Character | null> {
         try {
-            const character = db.prepare(
-                `SELECT * FROM characters 
-                WHERE value = ?`
-            ).get(value);
+            // Récupérer l'URL de l'API
+            const url = await ApiHandler.getApiLink("characters-getByValue");
+            if (!url) return null;
 
-            return character as Character;
+            // Appel à l'API
+            const response = await fetch(`${url.route}${value}`);
+            console.log(`${url.route}${value}`);
+
+            const json = await response.json();
+
+            // Vérification et extraction des données
+            if (!json.success || !json.data) {
+                console.warn("Réponse inattendue :", json);
+                return null;
+            }
+
+            // Retourne les informations du personnage
+            return json.data as Character;
+
         } catch (error) {
             console.error(error);
-            return {
-                name: '',
-                weapon: '',
-                vision: '',
-                region: '',
-                portraitLink: '',
-                formatedValue: ''
-            } as Character;
+            return null;
         }
     }
-
 } 
