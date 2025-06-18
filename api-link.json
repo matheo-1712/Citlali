@@ -78,5 +78,53 @@
         "parameters": ":jeu",
         "comment": "Obtenir les infographies par le jeu",
         "description": ""
+    },
+    {
+        "alias": "uid-infos-getByUid",
+        "route": "https://citlapi.antredesloutres.fr/api/uid-infos/",
+        "method": "GET",
+        "parameters": ":uid",
+        "comment": "Obtenir une info UID par son uid",
+        "description": ""
+    },
+    {
+        "alias": "uid-infos-getAll",
+        "route": "https://citlapi.antredesloutres.fr/api/uid-infos",
+        "method": "GET",
+        "parameters": "",
+        "comment": "Obtenir toutes les infos UID",
+        "description": ""
+    },
+    {
+        "alias": "id-discord-to-uid-getAll",
+        "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid",
+        "method": "GET",
+        "parameters": "",
+        "comment": "Obtenir toutes les infos UID",
+        "description": ""
+    },
+    {
+        "alias": "id-discord-to-uid-getByUid",
+        "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid/",
+        "method": "GET",
+        "parameters": ":id_discord",
+        "comment": "Obtenir une info UID par son id_discord",
+        "description": ""
+    },
+    {
+        "alias": "id-discord-to-uid-create",
+        "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid",
+        "method": "POST",
+        "parameters": "id_discord, uid_genshin",
+        "comment": "Créer un enregistrement ID Discord to UID",
+        "description": ""
+    },
+    {
+        "alias": "id-discord-to-uid-getUidByUid",
+        "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid/genshin/uid/",
+        "method": "GET",
+        "parameters": ":uid_genshin",
+        "comment": "Obtenir une info UID par son uid_genshin",
+        "description": ""
     }
 ]

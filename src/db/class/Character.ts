@@ -155,7 +155,6 @@ export class Character implements CharacterType {
 
             // Appel à l'API
             const response = await fetch(`${url.route}${value}`);
-            console.log(`${url.route}${value}`);
 
             const json = await response.json();
 

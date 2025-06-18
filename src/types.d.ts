@@ -7,6 +7,7 @@ declare global {
             DISCORD_CLIENT_ID: string;
             DEV_SERVEUR: string;
             API_ROUTES: string;
+            API_TOKEN: string;
         }
     }
 }

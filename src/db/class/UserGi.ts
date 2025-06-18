@@ -1,4 +1,6 @@
 import { db } from "../db";
+import axios from "axios";
+import {ApiHandler, ApiLink} from "./ApiHandler";
 
 // Type de la classe 
 export type UserType = {
@@ -22,61 +24,24 @@ export class UserGi implements UserType {
     // Enregistrer un utilisateur dans la base de données
     static async add(user: UserType): Promise<boolean> {
         try {
-            // Obtenir les colonnes et les placeholders
-            const columns = Object.keys(user).join(", ");
-            const placeholders = Object.keys(user).map(() => "?").join(", ");
-            const values = Object.values(user);
+            // Récupérer le lien
+            const url : ApiLink | null = await ApiHandler.getApiLink("id-discord-to-uid-create");
 
-            // Construire la requête SQL sécurisée avec des placeholders
-            const query = `INSERT INTO users (${columns}) VALUES (${placeholders})`;
+            // Vérifier si le lien est bon
+            if (url === null) return false;
 
-            // Exécuter la requête avec les valeurs
-            db.prepare(query).run(...values);
-
-            return true;
-        } catch (error) {
-            console.error(error);
-            return false;
-        }
-    }
-
-    // Mettre à jour un utilisateur dans la base de données
-    static async update(object: UserType): Promise<boolean> {
-        try {
-            // Récupérer les clés (noms des colonnes) et les valeurs
-            const columns = Object.keys(object).filter(key => key !== 'uid');
-            const values = Object.values(object).filter(value => value !== object.uid_genshin);
-    
-            // Construire les parties de la requête SQL (colonne = ?)
-            const setClause = columns.map(column => `${column} = ?`).join(", ");
-    
-            // Ajouter l'UID à la fin de la requête pour la condition WHERE
-            const query = `UPDATE uid_infos SET ${setClause} WHERE uid = ?`;
-    
-            // Exécuter la requête avec les valeurs
-            db.prepare(query).run(...values, object.uid_genshin);
-    
-            return true;
-    
-        } catch (error) {
-            console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
-            return false;
-        }
-    }
-
-    // Supprimer un utilisateur dans la base de données
-    static async delete(object: UserType): Promise<boolean> {
-        try {
-            // Obtenir les colonnes et les placeholders
-            const values = Object.values(object);
-
-            // Construire la requête SQL sécurisée avec des placeholders
-            const query = `DELETE FROM users WHERE id_discord = ?`;
-
-            // Exécuter la requête avec les valeurs
-            db.prepare(query).run(...values, object.id_discord);
-
-            return true;
+            // Appel à l'API
+            const result = await axios.post(`${url.route}`, {
+                id_discord: user.id_discord,
+                uid_genshin: user.uid_genshin
+            }, {
+                headers: {'Authorization': `${process.env.API_TOKEN}`}
+            }).catch(error => {
+                console.error(error);
+                return false;
+            })
+            // Si la création a fonctionné, on renvoie true, sinon false
+            return result !== undefined;
         } catch (error) {
             console.error(error);
             return false;
@@ -86,34 +51,21 @@ export class UserGi implements UserType {
     // Vérifier si un utilisateur existe dans la base de données (id_discord)
     static async exists(object: string): Promise<boolean> {
         try {
-            const result = db.prepare(
-                `SELECT id_discord FROM users 
-                WHERE id_discord = ?`
-            ).get(object) as { id_discord: string };
+            // Récupérer le lien
+            const url: ApiLink | null = await ApiHandler.getApiLink("id-discord-to-uid-getByUid");
+            // Vérifier si le lien est bon
+            if (url === null) return false;
 
-            // Si l'utilisateur existe, on renvoie true, sinon false
-            return result !== undefined;
+            // Appel à l'API
+            const response = await axios.get(`${url.route}${object}`);
+            const result = response.data;
+            // Si l'utilisateur existe et a des données, on renvoie true, sinon false
+            return result && result.data !== null;
         } catch (error) {
             console.error(error);
             return false;
         }
     }
-
-    // Récupérer tous les utilisateurs dans la base de données
-    static async getAll(): Promise<UserType[]> {
-        try {
-            const users = db.prepare(
-                `SELECT * FROM users`
-            ).all() as { id_discord: string, uid_genshin: string | null }[];
-            return users;
-        } catch (error) {
-            console.error(error);
-            return [];
-        }
-    }
-
-
-    // Fonction spécifique à la classe /---------------------------------------------------------------------------------------------------------/
 
     // Récupérer l'UID Genshin d'un membre dans la base de données
     static getUID(id_discord: string): string {
@@ -130,16 +82,17 @@ export class UserGi implements UserType {
         }
     }
 
-    // Vérifier si l'UID est déjà enregistré dans la base de données
     static async uidExists(uid: string): Promise<boolean> {
         try {
-            const result = db.prepare(
-                `SELECT uid_genshin FROM users 
-                    WHERE uid_genshin = ?`
-            ).get(uid) as { uid_genshin: string };
+            const url: ApiLink | null = await ApiHandler.getApiLink("id-discord-to-uid-getUidByUid");
 
-            // Si l'utilisateur existe, on renvoie true, sinon false
-            return result !== undefined;
+            // Vérifier si le lien n'est pas bon
+            if (url === null) return false;
+
+            const response = await axios.get(`${url.route}${uid}`);
+            const result = response.data;
+            // Si l'utilisateur existe et a des données, on renvoie true, sinon false
+            return result && result.data !== null;
         } catch (error) {
             console.error(error);
             return false;
