@@ -33,21 +33,12 @@ Pour lancer le bot en local, vous devez :
 2. Installer les dépendances avec `npm install`
 3. Renommer le fichier `.env.example` en `.env` et le remplir avec vos informations
 
-# Pour Linux 
-
-sudo apt update
-sudo apt install -y libgbm1 
-
-    
-
 ```env
 DISCORD_TOKEN=<votre token Discord>
 DISCORD_CLIENT_ID=<votre client ID Discord>
 DEV_SERVEUR=<ID de votre serveur Discord>
 ```
     
-
-
 4. Lancer le bot avec `npm run start`
 
 
