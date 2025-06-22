@@ -66,18 +66,15 @@ export class Character implements CharacterType {
         try {
             // Récupérer l'URL de l'API
             const url = await ApiHandler.getApiLink("characters-getByValue");
-            if (!url) return null;
-
-            // Appel à l'API
-            const response = await fetch(`${url.route}${value}`);
-
-            const json = await response.json();
-
-            // Vérification et extraction des données
-            if (!json.success || !json.data) {
-                console.warn("Réponse inattendue :", json);
+            if (!url || !url.route) {
+                console.error("URL invalide ou manquante depuis getApiLink");
                 return null;
             }
+
+            // Appel à l'API
+            const response = await fetch(`${url.route}/${value}`);
+
+            const json = await response.json();
 
             // Retourne les informations du personnage
             return json.data as Character;

@@ -1,7 +1,7 @@
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import { UserGi } from "../db/class/UserGi";
-import { UidInfos } from "../db/class/UidInfos";
+import { UserGi } from "../api-class/UserGi";
+import { UidInfos } from "../api-class/UidInfos";
 
 export const command: SlashCommand = {
     name: "get-uid",

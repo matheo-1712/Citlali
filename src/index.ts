@@ -3,8 +3,7 @@ import * as dotenv from "dotenv";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { SlashCommand } from "./types";
-import { initializeDatabase } from "./db/db";
-import {ApiHandler} from "./db/class/ApiHandler";
+import {ApiHandler} from "./api-class/ApiHandler";
 
 dotenv.config();
 
@@ -19,7 +18,6 @@ const client = new Client({
 
 // Initialisation de la base de données
 try {
-    initializeDatabase();
     ApiHandler.registerApiLink()
 } catch (error) {
     console.error("Erreur lors de l'initialisation de la base de données :", error);

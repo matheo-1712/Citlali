@@ -1,6 +1,6 @@
 import { Events, Interaction } from "discord.js";
 import { BotEvent } from "../types";
-import { Character } from "../db/class/Character";
+import { Character } from "../api-class/Character";
 
 let characterList: Character[] = [];
 

@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ButtonBuilder, ColorResolvable, ComponentType, EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { Character } from "../db/class/Character";
-import { Infographic } from "../db/class/Infographic";
+import { Character } from "../api-class/Character";
+import { Infographic } from "../api-class/Infographic";
 import { SlashCommand } from "../types";
 
 export const command: SlashCommand = {

@@ -31,7 +31,7 @@ export type ApiLink = {
 
 export class ApiHandler {
 
-    private static readonly linkFile = path.resolve(__dirname, "../../../api-link.json");
+    private static readonly linkFile = path.resolve(__dirname, "../../api-link.json");
 
     // Enregistrer les liens de l'API
     static async registerApiLink(): Promise<void> {

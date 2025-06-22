@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import { SlashCommand } from "../types";
-import { UserGi } from "../db/class/UserGi";
+import { UserGi } from "../api-class/UserGi";
 
 export const command: SlashCommand = {
     name: "set-uid",
