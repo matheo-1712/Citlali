@@ -37,6 +37,8 @@ Pour lancer le bot en local, vous devez :
 DISCORD_TOKEN=<votre token Discord>
 DISCORD_CLIENT_ID=<votre client ID Discord>
 DEV_SERVEUR=<ID de votre serveur Discord>
+API_ROUTES=<URL des routes de votre api (par défaut) : https://citlapi.antredesloutres.fr/api/routes>
+API_TOKEN=<Token API du bot>
 ```
     
 4. Lancer le bot avec `npm run start`
