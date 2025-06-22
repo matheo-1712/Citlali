@@ -39,7 +39,7 @@ export const command: SlashCommand = {
             }
 
             // Récupérer l'UID Genshin
-            const uid = UserGi.getUID(member);
+            const uid = await UserGi.getUID(member);
             console.log(uid);
 
             // Vérifier si l'UID est enregistré
@@ -49,11 +49,11 @@ export const command: SlashCommand = {
             }
 
             // Si l'option "rafraichir" est activée, mettre à jour les informations de l'utilisateur
-            if (interaction.options.get("rafraichir")?.value === "maj") {
+            /*if (interaction.options.get("rafraichir")?.value === "maj") {
                 try {
                     console.log("Mise à jour des informations de l'utilisateur...");
                     // Récupérer les données de l'UID
-                    const data = await getEnkaData(uid);
+                    const data = await getEnkaData(uid.uid_genshin.toString());
 
                     // Enregistrer les infos de l'UID dans la base de données
 
@@ -74,42 +74,40 @@ export const command: SlashCommand = {
                 } catch (error) {
                     console.error("Erreur lors de la mise à jour des informations de l'utilisateur:", error);
                 }
-            }
+            }*/
 
             // Récupérer les informations de l'utilisateur
-            const uid_infos = await UidInfos.getPlayerUidInfos(uid);
-
-            // Récupérer les données de l'UID
-            const characters = PlayerCharacter.getPlayerCharacters(uid);
+            if (!uid?.uid_genshin) {
+                await interaction.reply("Une erreur est survenue lors de la récupération des informations du joueur.");
+                return;
+            }
+            const uid_infos = await UidInfos.getPlayerUidInfos(uid.uid_genshin.toString());
+            console.log(uid_infos);
 
             // Répondre à l'utilisateur
             const embed = new EmbedBuilder()
                 .setAuthor({
                     name: "Citlali",
                 })
+                .setTitle(`Profil de ${uid_infos?.nickname || 'Utilisateur inconnu'}`)
                 .addFields(
                     {
-                        name: `**Nom d'utilisateur :** ${uid_infos.nickname}`,
-                        value: `            
-                    **UID :** ${uid}
-                    **Signature :** ${uid_infos.signature}
-                    **Niveau :** ${uid_infos.level}
-                    **Achievements :** ${uid_infos.finishAchievementNum}
-                    **Abysse :** ${uid_infos.towerFloor}
-                    **Affinités :** ${uid_infos.affinityCount}
-                    **Théâtre :** ${uid_infos.theaterAct}
-                    **Théâtre :** ${uid_infos.theaterMode}
-                    **Niveau monde :** ${uid_infos.worldLevel}
+                        name: `📋 Informations`,
+                        value: `
+                    **UID :** ${uid_infos?.uid || 'Non défini'}
+                    **Signature :** ${uid_infos?.signature || 'Non définie'}
+                    **Niveau :** ${uid_infos?.level || 0}
+                    **Niveau du monde :** ${uid_infos?.worldLevel || 0}
+                    **Succès terminés :** ${uid_infos?.finishAchievementNum || 0}
+                    **Abysse :** ${uid_infos?.towerFloor || 'Non défini'}
+                    **Affinités :** ${uid_infos?.affinityCount || 0}
+                    **Théâtre (Acte) :** ${uid_infos?.theaterAct || 0}
+                    **Théâtre (Mode) :** ${uid_infos?.theaterMode || 'Non défini'}
                     `,
-                        inline: true
+                        inline: false,
                     },
-                    {
-                        name: "**Personnages :**",
-                        value: `${characters.map(character => character.name).join("\n")}`,
-                        inline: true
-                    }
                 )
-                .setThumbnail(`https://enka.network/ui/${uid_infos.playerIcon}.png`)
+                .setThumbnail(`https://enka.network/ui/${uid_infos?.playerIcon || '0'}.png`)
                 .setColor("#00b0f4")
                 .setFooter({
                     text: "Powered by EnkaNetwork API",
@@ -117,8 +115,8 @@ export const command: SlashCommand = {
                 .setTimestamp();
 
             await interaction.reply({ embeds: [embed] });
-        }
-        catch (error) {
+
+        } catch (error) {
             console.error("Erreur lors de la récupération des informations du joueur:", error);
             await interaction.reply("Une erreur est survenue lors de la récupération des informations du joueur.");
         }

@@ -155,7 +155,7 @@ export class PlayerCharacter implements PlayerCharacterType {
     }
 
     // Récupérer les personnages d'un membre dans la base de données
-    static getPlayerCharacters(uid_genshin: string): PlayerCharacter[] {
+    static async getPlayerCharacters(uid_genshin: string): Promise<PlayerCharacter[]> {
         try {
             const characters = db.prepare(
                 `SELECT * FROM players_characters 

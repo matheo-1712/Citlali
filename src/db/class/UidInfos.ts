@@ -1,4 +1,6 @@
 import { db } from "../db";
+import {ApiHandler, ApiLink} from "./ApiHandler";
+import axios from "axios";
 
 export type UidInfosType = {
     uid: string,
@@ -133,12 +135,30 @@ export class UidInfos implements UidInfosType {
 
     static async getPlayerUidInfos(uid: string): Promise<UidInfosType> {
         try {
-            const result = db.prepare(
-                `SELECT * FROM uid_infos 
-                WHERE uid = ?`
-            ).get(uid) as { uid: string, nickname: string, level: number, worldLevel: number, signature: string, finishAchievementNum: number, towerFloor: string, affinityCount: number, theaterAct: number, theaterMode: string, playerIcon: string };
+            const url: ApiLink | null = await ApiHandler.getApiLink("uid-infos-getByUid");
 
-            return result as UidInfosType;
+            // Vérifier si le lien n'est pas bon
+            if (url === null) return {
+                uid: '',
+                nickname: '',
+                level: 0,
+                worldLevel: 0,
+                signature: '',
+                finishAchievementNum: 0,
+                towerFloor: '',
+                affinityCount: 0,
+                theaterAct: 0,
+                theaterMode: '',
+                playerIcon: ''
+            } as UidInfosType;
+
+            console.log(`${url.route}/${uid}`);
+            const response = await axios.get(`${url.route}/${uid}`);
+            const result = response.data;
+
+            // ⚠️ On retourne uniquement les données utiles
+            return result.data as UidInfosType;
+
         } catch (error) {
             console.error(error);
             return {

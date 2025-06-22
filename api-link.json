@@ -9,7 +9,7 @@
     },
     {
         "alias": "characters-getById",
-        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters/",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters",
         "method": "GET",
         "parameters": ":id",
         "comment": "Obtenir un personnage par son ID",
@@ -17,7 +17,7 @@
     },
     {
         "alias": "characters-getByValue",
-        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters/value/",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters/value",
         "method": "GET",
         "parameters": ":value",
         "comment": "Obtenir un personnage par son formatedValue",
@@ -41,7 +41,7 @@
     },
     {
         "alias": "characters-delete",
-        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters/",
+        "route": "https://citlapi.antredesloutres.fr/api/genshin/characters",
         "method": "DELETE",
         "parameters": ":id",
         "comment": "Supprimer un personnage",
@@ -57,7 +57,7 @@
     },
     {
         "alias": "infographics-getById",
-        "route": "https://citlapi.antredesloutres.fr/api/infographics/",
+        "route": "https://citlapi.antredesloutres.fr/api/infographics",
         "method": "GET",
         "parameters": ":id",
         "comment": "Obtenir une infographie par son ID",
@@ -65,7 +65,7 @@
     },
     {
         "alias": "infographics-getByIdGenshinCharacter",
-        "route": "https://citlapi.antredesloutres.fr/api/infographics/genshin/",
+        "route": "https://citlapi.antredesloutres.fr/api/infographics/genshin",
         "method": "GET",
         "parameters": ":id",
         "comment": "Obtenir une infographie par son ID de personnage",
@@ -73,18 +73,10 @@
     },
     {
         "alias": "infographics-getByJeu",
-        "route": "https://citlapi.antredesloutres.fr/api/infographics/jeu/",
+        "route": "https://citlapi.antredesloutres.fr/api/infographics/jeu",
         "method": "GET",
         "parameters": ":jeu",
         "comment": "Obtenir les infographies par le jeu",
-        "description": ""
-    },
-    {
-        "alias": "uid-infos-getByUid",
-        "route": "https://citlapi.antredesloutres.fr/api/uid-infos/",
-        "method": "GET",
-        "parameters": ":uid",
-        "comment": "Obtenir une info UID par son uid",
         "description": ""
     },
     {
@@ -96,6 +88,14 @@
         "description": ""
     },
     {
+        "alias": "uid-infos-getByUid",
+        "route": "https://citlapi.antredesloutres.fr/api/uid-infos",
+        "method": "GET",
+        "parameters": ":uid",
+        "comment": "Obtenir une info UID par son uid",
+        "description": ""
+    },
+    {
         "alias": "id-discord-to-uid-getAll",
         "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid",
         "method": "GET",
@@ -104,7 +104,7 @@
         "description": ""
     },
     {
-        "alias": "id-discord-to-uid-getByUid",
+        "alias": "id-discord-to-uid-getByDiscordId",
         "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid/",
         "method": "GET",
         "parameters": ":id_discord",
@@ -121,10 +121,18 @@
     },
     {
         "alias": "id-discord-to-uid-getUidByUid",
-        "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid/genshin/uid/",
+        "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid/genshin/uid",
         "method": "GET",
         "parameters": ":uid_genshin",
         "comment": "Obtenir une info UID par son uid_genshin",
+        "description": ""
+    },
+    {
+        "alias": "id-discord-to-uid-getByUid",
+        "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid",
+        "method": "GET",
+        "parameters": ":id_discord",
+        "comment": "Obtenir une info UID par son id_discord",
         "description": ""
     }
 ]

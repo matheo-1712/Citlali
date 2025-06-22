@@ -52,12 +52,12 @@ export class UserGi implements UserType {
     static async exists(object: string): Promise<boolean> {
         try {
             // Récupérer le lien
-            const url: ApiLink | null = await ApiHandler.getApiLink("id-discord-to-uid-getByUid");
+            const url: ApiLink | null = await ApiHandler.getApiLink("id-discord-to-uid-getByDiscordId");
             // Vérifier si le lien est bon
             if (url === null) return false;
 
             // Appel à l'API
-            const response = await axios.get(`${url.route}${object}`);
+            const response = await axios.get(`${url.route}/${object}`);
             const result = response.data;
             // Si l'utilisateur existe et a des données, on renvoie true, sinon false
             return result && result.data !== null;
@@ -68,17 +68,19 @@ export class UserGi implements UserType {
     }
 
     // Récupérer l'UID Genshin d'un membre dans la base de données
-    static getUID(id_discord: string): string {
+    static async getUID(id_discord: string): Promise<UserType | null> {
         try {
-            const result = db.prepare(
-                `SELECT uid_genshin FROM users 
-            WHERE id_discord = ?`
-            ).get(id_discord) as { uid_genshin: string };
+            const url: ApiLink | null = await ApiHandler.getApiLink("id-discord-to-uid-getByDiscordId");
+            // Vérifier si le lien n'est pas bon
+            if (url === null) return null;
 
-            return result?.uid_genshin || '';
+            const response = await axios.get(`${url.route}/${id_discord}`);
+            const result = response.data;
+            // Si l'utilisateur existe et a des données, on renvoie l'UID, sinon ''
+            return result && result.data !== null ? result.data : null;
         } catch (error) {
             console.error(error);
-            return '';
+            return null;
         }
     }
 
@@ -89,7 +91,7 @@ export class UserGi implements UserType {
             // Vérifier si le lien n'est pas bon
             if (url === null) return false;
 
-            const response = await axios.get(`${url.route}${uid}`);
+            const response = await axios.get(`${url.route}/${uid}`);
             const result = response.data;
             // Si l'utilisateur existe et a des données, on renvoie true, sinon false
             return result && result.data !== null;
