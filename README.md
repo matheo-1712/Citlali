@@ -40,8 +40,8 @@ DEV_SERVEUR=<ID de votre serveur Discord>
 API_ROUTES=<URL des routes de votre api (par défaut) : https://citlapi.antredesloutres.fr/api/routes>
 API_TOKEN=<Token API du bot>
 ```
-    
-4. Lancer le bot avec `npm run start`
+4. Build le bot avec `npm run build`
+5. Lancer le bot avec `npm run start`
 
 
 ## Auteur du bot
