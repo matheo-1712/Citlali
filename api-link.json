@@ -96,6 +96,14 @@
         "description": ""
     },
     {
+        "alias": "uid-infos-refresh",
+        "route": "https://citlapi.antredesloutres.fr/api/uid-infos/refresh",
+        "method": "POST",
+        "parameters": "uid_genshin",
+        "comment": "Rafraîchir les infos UID",
+        "description": ""
+    },
+    {
         "alias": "id-discord-to-uid-getAll",
         "route": "https://citlapi.antredesloutres.fr/api/id-discord-to-uid",
         "method": "GET",
