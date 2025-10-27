@@ -76,7 +76,7 @@ export default {
                     "❌ Impossible de récupérer le nom du personnage."
                 );
             }
-
+            // Récupération des informations du personnage
             characterInfos = await Otterlyapi.getDataByAlias(
                 "characters-getByValue",
                 characterValue
@@ -87,12 +87,13 @@ export default {
                     "❌ Aucune information trouvée pour ce personnage."
                 );
             }
-
             // Récupération des builds du personnage
             characterBuilds = await Otterlyapi.getDataByAlias(
                 "infographics-getByIdGenshinCharacter",
                 characterInfos.id.toString()
             );
+
+            // On crée l'embed
             embed = await buildEmbed(characterInfos, characterBuilds ?? []);
 
         } catch (error) {
