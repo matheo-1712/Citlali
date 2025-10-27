@@ -1,166 +1,174 @@
 import {
-    ActionRowBuilder, AutocompleteInteraction, ButtonBuilder, ChatInputCommandInteraction, ComponentType, SlashCommandBuilder
+    ActionRowBuilder,
+    AutocompleteInteraction,
+    ButtonBuilder,
+    ChatInputCommandInteraction,
+    ComponentType,
+    EmbedBuilder,
+    SlashCommandBuilder
 } from "discord.js";
-import {buildEmbed} from "../embeds/buildEmbed";
-import {CharacterInfosType} from "../types/CharacterInfos";
-import {InfographicType} from "../types/Infographic";
-import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
-import {otterlogs} from "../../otterbots/utils/otterlogs";
+
+import { buildEmbed } from "../embeds/buildEmbed";
+import { CharacterInfosType } from "../types/CharacterInfos";
+import { InfographicType } from "../types/Infographic";
+import { Otterlyapi } from "../../otterbots/utils/otterlyapi/otterlyapi";
+import { otterlogs } from "../../otterbots/utils/otterlogs";
 
 export default {
     name: "build",
     data: new SlashCommandBuilder()
         .setName("build")
         .setDescription("Affiche le build du personnage demandé")
-        .addStringOption((option) => {
-            return option
+        .addStringOption(option =>
+            option
                 .setName("personnage")
                 .setDescription("Le personnage dont vous souhaitez afficher le build")
                 .setRequired(true)
                 .setAutocomplete(true)
-        }),
+        ),
 
+    /**
+     * Autocomplétion pour le nom du personnage
+     */
     async autocomplete(interaction: AutocompleteInteraction) {
         try {
             const focusedValue = interaction.options.getFocused();
-
-            // Récupération des personnages via ton API
             const allCharacters = await Otterlyapi.getDataByAlias("characters-getAll");
 
-            // Sécurité : si l'API ne retourne pas un tableau
             const characters = Array.isArray(allCharacters) ? allCharacters : [];
 
-            // Filtrage par saisie
-            const filteredChoices = characters.filter(
-                (character: { name: string }) =>
-                    character.name.toLowerCase().startsWith(focusedValue.toLowerCase())
+            // Filtrage selon la saisie utilisateur
+            const filtered = characters.filter(
+                (char: { name: string }) =>
+                    char.name.toLowerCase().startsWith(focusedValue.toLowerCase())
             );
 
-            // Formatage pour Discord (max 25 résultats)
-            const results = filteredChoices.slice(0, 25).map(
-                (choice: { name: string; formatedValue: string }) => ({
-                    name: choice.name,
-                    value: choice.formatedValue,
+            // Formatage pour Discord (limite de 25)
+            const results = filtered.slice(0, 25).map(
+                (c: { name: string; formatedValue: string }) => ({
+                    name: c.name,
+                    value: c.formatedValue
                 })
             );
 
-            // Envoi des résultats à Discord
             await interaction.respond(results).catch(() => {});
         } catch (error) {
             otterlogs.error("Error in autocomplete: " + error);
-            await interaction.respond([
-                {
-                    name: "⚠️ Erreur lors du chargement",
-                    value: "error",
-                },
-            ]).catch(() => {});
+            await interaction
+                .respond([{ name: "⚠️ Erreur lors du chargement", value: "error" }])
+                .catch(() => {});
         }
     },
 
-    execute: async (interaction: ChatInputCommandInteraction) => {
-
-        // On instancie les variables
-        let characterInfos: CharacterInfosType | undefined
-        let characterBuilds: InfographicType[] | null | undefined
+    /**
+     * Exécution de la commande /build
+     */
+    async execute(interaction: ChatInputCommandInteraction) {
+        let characterInfos: CharacterInfosType | undefined;
+        let characterBuilds: InfographicType[] | null | undefined;
+        let embed: EmbedBuilder;
 
         try {
-            // Récupérer le personnage demandé
-            const characterValue = interaction.options.get("personnage")?.value?.toString();
+            const characterValue = interaction.options.getString("personnage");
 
-            // On vérifie si le personnage existe
             if (!characterValue) {
-                await interaction.reply("Une erreur est survenue lors de la récupération de la value du personnage.");
-                return;
+                return interaction.reply(
+                    "❌ Impossible de récupérer le nom du personnage."
+                );
             }
-            // Récupérer les informations du personnage
-            characterInfos = await Otterlyapi.getDataByAlias("characters-getByValue", characterValue)
 
-            // On vérifie si les informations du personnage existe
+            characterInfos = await Otterlyapi.getDataByAlias(
+                "characters-getByValue",
+                characterValue
+            );
+
             if (!characterInfos?.id) {
-                await interaction.reply("Une erreur est survenue lors de la récupération du nom du personnage.");
-                return;
+                return interaction.reply(
+                    "❌ Aucune information trouvée pour ce personnage."
+                );
             }
 
-            // Obtenir la liste des infographies disponibles pour le personnage
-            characterBuilds = await Otterlyapi.getDataByAlias("infographics-getByIdGenshinCharacter", characterInfos.id.toString())
+            // Récupération des builds du personnage
+            characterBuilds = await Otterlyapi.getDataByAlias(
+                "infographics-getByIdGenshinCharacter",
+                characterInfos.id.toString()
+            );
+            embed = await buildEmbed(characterInfos, characterBuilds ?? []);
 
-            // Construction de l'embed
-            const embed = await buildEmbed(characterInfos, characterBuilds ?? []);
+        } catch (error) {
+            console.error(error);
+            return interaction.reply(
+                "⚠️ Une erreur est survenue lors de la récupération des informations du personnage."
+            );
+        }
 
-            // Création de la liste des builds
+        try {
             const actionRows: ActionRowBuilder<ButtonBuilder>[] = [];
             let currentRow = new ActionRowBuilder<ButtonBuilder>();
 
-            // Si des builds sont disponibles, on les ajoute en tant que boutons
-            if (characterBuilds && characterBuilds.length > 0) {
+            if (characterBuilds?.length) {
                 for (const build of characterBuilds) {
                     const button = new ButtonBuilder()
-                        .setCustomId(`${build.build}`)
+                        .setCustomId(build.build)
                         .setLabel(build.build)
-                        .setStyle(1);
+                        .setStyle(1); // Primary
 
-                    // Ajout du bouton à la ligne actuelle
                     currentRow.addComponents(button);
 
-                    // Si la ligne contient 5 boutons, on la sauvegarde et on en crée une nouvelle
+                    // Max 5 boutons par ligne
                     if (currentRow.components.length === 5) {
                         actionRows.push(currentRow);
                         currentRow = new ActionRowBuilder<ButtonBuilder>();
                     }
                 }
 
-                // Ajout de la dernière ligne si elle contient des boutons
+                // Ajout de la dernière ligne
                 if (currentRow.components.length > 0) {
                     actionRows.push(currentRow);
                 }
             }
 
-            // Envoi de la réponse avec plusieurs lignes si nécessaire
-            const message = await interaction.reply({embeds: [embed], components: actionRows});
+            const message = await interaction.reply({
+                embeds: [embed],
+                components: actionRows
+            });
 
             const collector = message.createMessageComponentCollector({
                 componentType: ComponentType.Button,
                 time: 60_000
             });
 
-            // Edition du message lorsque le bouton est cliqué
-            collector.on('collect', async (i: { customId: string; deferUpdate: () => unknown; }) => {
-
-                // Récupérer le bouton cliqué
-                const button = i.customId;
-
-                // Déférer la réponse pour éviter le timeout
+            collector.on("collect", async i => {
                 await i.deferUpdate();
 
-                // Récupérer l'infographie correspondante
-                const build = characterBuilds?.find(build => build.build === button);
+                const build = characterBuilds?.find(b => b.build === i.customId);
                 if (!build) {
-                    await interaction.editReply({
-                        content: 'Une erreur est survenue lors de la récupération de l\'infographie.',
+                    return interaction.editReply({
+                        content:
+                            "❌ Une erreur est survenue lors de la récupération du build.",
                         components: []
                     });
-                    return;
                 }
 
-                // Récupération de l'URL de l'infographie
-                const url = build.url ?? "https://furina.antredesloutres.fr/infographie/default_Snezhnaya.png";
+                const url =
+                    build.url ??
+                    "https://furina.antredesloutres.fr/infographie/default_Snezhnaya.png";
 
-                // Éditer le message initial avec l'embed correspondant
                 await interaction.editReply({
-                    content: 'Voici l\'infographie du build : ' + build.build,
-                    embeds: [(await embed).setImage(url)],
+                    embeds: [embed.setImage(url)],
                     components: actionRows
                 });
             });
 
-            // Quand le collector est fini, on supprime les boutons
-            collector.on('end', async () => {
-                await interaction.editReply({components: []});
+            collector.on("end", async () => {
+                await interaction.editReply({ components: [] });
             });
 
         } catch (error) {
-            console.error("Erreur lors de la récupération des informations du personnage:", error);
-            await interaction.reply("Une erreur est survenue lors de la récupération des informations du personnage.");
+            console.error("Erreur lors de la création de l'interface:", error);
+            await interaction.reply(
+                "⚠️ Une erreur est survenue lors de la création de l'interface."
+            );
         }
     }
-}
+};
