@@ -55,7 +55,6 @@ export default {
                 },
             ]).catch(() => {});
         }
-
     },
 
     execute: async (interaction: ChatInputCommandInteraction) => {
@@ -84,11 +83,8 @@ export default {
             // Obtenir la liste des infographies disponibles pour le personnage
             characterBuilds = await Otterlyapi.getDataByAlias("infographics-getByIdGenshinCharacter", characterInfos.id.toString())
 
-            // Préparer le lien du guide du personnage
-            const guideLink = `https://keqingmains.com/q/${characterInfos.formatedValue}-quickguide/`
-
             // Construction de l'embed
-            const embed = await buildEmbed(characterInfos, guideLink, characterBuilds ?? []);
+            const embed = await buildEmbed(characterInfos, characterBuilds ?? []);
 
             // Création de la liste des builds
             const actionRows: ActionRowBuilder<ButtonBuilder>[] = [];

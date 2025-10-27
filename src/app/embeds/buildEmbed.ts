@@ -1,16 +1,16 @@
 import {ColorResolvable, EmbedBuilder} from "discord.js";
 import {CharacterInfosType} from "../types/CharacterInfos";
 import {InfographicType} from "../types/Infographic";
+import {getGuideLink} from "../utils/guideLink";
 
 /**
  * Builds an embedded message containing information about a character, including their name, vision, weapon, and an optional build infographic.
  *
  * @param {CharacterInfosType} characterInfos - Information about the character, such as name, element (vision), region, and portrait link.
- * @param {string} guideLink - URL link to a guide associated with the character.
  * @param {{ url: string }[]} [characterBuilds=[]] - Array of objects containing URLs for character builds; uses a default image if none is provided.
  * @return {Promise<EmbedBuilder>} A promise that resolves to an EmbedBuilder instance populated with the character's build information.
  */
-export async function buildEmbed(characterInfos: CharacterInfosType, guideLink: string, characterBuilds?: InfographicType[] | undefined): Promise<EmbedBuilder> {
+export async function buildEmbed(characterInfos: CharacterInfosType, characterBuilds?: InfographicType[] | undefined): Promise<EmbedBuilder> {
     // Déclaration des variables
     let embedColor: ColorResolvable;
     let elementEmote: string;
@@ -81,37 +81,73 @@ export async function buildEmbed(characterInfos: CharacterInfosType, guideLink: 
             break;
     }
 
+    const guideLink = await getGuideLink(characterInfos.formatedValue)
+    if (!guideLink || (!guideLink.quickGuide && !guideLink.fullGuide)) {
+        return new EmbedBuilder()
+            .setTitle("Aucun guide disponible pour ce personnage")
+            .setColor(embedColor)
+            .setTimestamp();
+    }
+
+    // Détermination du lien principal (préférence pour le guide complet)
+    const titleUrl = guideLink.fullGuide
+        ? guideLink.fullGuideUrl
+        : guideLink.quickGuideUrl;
+
+    // Construction de la liste de champs dynamiques
+    const guideFields: { name: string; value: string; inline: boolean }[] = [];
+
+    if (guideLink.quickGuide) {
+        guideFields.push({
+            name: "Guide rapide :",
+            value: `[Keqing Mains](${guideLink.quickGuideUrl})`,
+            inline: true
+        });
+    }
+
+    if (guideLink.fullGuide) {
+        guideFields.push({
+            name: "Guide complet :",
+            value: `[Keqing Mains](${guideLink.fullGuideUrl})`,
+            inline: true
+        });
+    }
+
     // Préparation de l'embed
     return new EmbedBuilder()
         .setTitle(`Build de ${characterInfos.name}`)
-        .setURL(guideLink)
+        .setURL(titleUrl)
         .setColor(embedColor)
         .addFields(
+            ...guideFields,
             {
                 name: "Nom :",
                 value: characterInfos.name,
-                inline: true
+                inline: false
             },
             {
                 name: "Vision :",
-                value: characterInfos.element + " " + elementEmote,
+                value: `${characterInfos.element} ${elementEmote}`,
                 inline: true
             },
             {
                 name: "Nationalité :",
                 value: characterInfos.region,
-                inline: false
+                inline: true
             },
             {
                 name: "Arme :",
-                value: weaponTranslation + " " + weaponEmote,
+                value: `${weaponTranslation} ${weaponEmote}`,
                 inline: true
-            },
+            }
         )
         .setThumbnail(characterInfos.portraitLink)
-        // Affichage de la première infographie
-        .setImage((characterBuilds?.[0]?.url) ?? "https://raw.githubusercontent.com/matheo-1712/Furina/refs/heads/main/api/img/infographies/default_Snezhnaya.png")
+        .setImage(
+            characterBuilds?.[0]?.url ??
+            "https://raw.githubusercontent.com/matheo-1712/Furina/refs/heads/main/api/img/infographies/default_Snezhnaya.png"
+        )
         .setFooter({
             text: "Crédits : Keqing Mains - Powered by CitlAPI",
-        }).setTimestamp();
+        })
+        .setTimestamp();
 }
