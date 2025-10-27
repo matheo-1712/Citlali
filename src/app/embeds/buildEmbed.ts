@@ -10,7 +10,7 @@ import {InfographicType} from "../types/Infographic";
  * @param {{ url: string }[]} [characterBuilds=[]] - Array of objects containing URLs for character builds; uses a default image if none is provided.
  * @return {Promise<EmbedBuilder>} A promise that resolves to an EmbedBuilder instance populated with the character's build information.
  */
-export async function buildEmbed(characterInfos: CharacterInfosType, guideLink: string, characterBuilds?: InfographicType[] | undefined) {
+export async function buildEmbed(characterInfos: CharacterInfosType, guideLink: string, characterBuilds?: InfographicType[] | undefined): Promise<EmbedBuilder> {
     // Déclaration des variables
     let embedColor: ColorResolvable;
     let elementEmote: string;
@@ -110,7 +110,7 @@ export async function buildEmbed(characterInfos: CharacterInfosType, guideLink: 
         )
         .setThumbnail(characterInfos.portraitLink)
         // Affichage de la première infographie
-        .setImage(characterBuilds[0]?.url ?? "https://raw.githubusercontent.com/matheo-1712/Furina/refs/heads/main/api/img/infographies/default_Snezhnaya.png")
+        .setImage((characterBuilds?.[0]?.url) ?? "https://raw.githubusercontent.com/matheo-1712/Furina/refs/heads/main/api/img/infographies/default_Snezhnaya.png")
         .setFooter({
             text: "Crédits : Keqing Mains - Powered by CitlAPI",
         }).setTimestamp();

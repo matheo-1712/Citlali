@@ -1,10 +1,11 @@
 import {
-    ActionRowBuilder, ButtonBuilder, ChatInputCommandInteraction, ComponentType, SlashCommandBuilder
+    ActionRowBuilder, AutocompleteInteraction, ButtonBuilder, ChatInputCommandInteraction, ComponentType, SlashCommandBuilder
 } from "discord.js";
 import {buildEmbed} from "../embeds/buildEmbed";
 import {CharacterInfosType} from "../types/CharacterInfos";
 import {InfographicType} from "../types/Infographic";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
+import {otterlogs} from "../../otterbots/utils/otterlogs";
 
 export default {
     name: "build",
@@ -19,11 +20,49 @@ export default {
                 .setAutocomplete(true)
         }),
 
+    async autocomplete(interaction: AutocompleteInteraction) {
+        try {
+            const focusedValue = interaction.options.getFocused();
+
+            // Récupération des personnages via ton API
+            const allCharacters = await Otterlyapi.getDataByAlias("characters-getAll");
+
+            // Sécurité : si l'API ne retourne pas un tableau
+            const characters = Array.isArray(allCharacters) ? allCharacters : [];
+
+            // Filtrage par saisie
+            const filteredChoices = characters.filter(
+                (character: { name: string }) =>
+                    character.name.toLowerCase().startsWith(focusedValue.toLowerCase())
+            );
+
+            // Formatage pour Discord (max 25 résultats)
+            const results = filteredChoices.slice(0, 25).map(
+                (choice: { name: string; formatedValue: string }) => ({
+                    name: choice.name,
+                    value: choice.formatedValue,
+                })
+            );
+
+            // Envoi des résultats à Discord
+            await interaction.respond(results).catch(() => {});
+        } catch (error) {
+            otterlogs.error("Error in autocomplete: " + error);
+            await interaction.respond([
+                {
+                    name: "⚠️ Erreur lors du chargement",
+                    value: "error",
+                },
+            ]).catch(() => {});
+        }
+
+    },
+
     execute: async (interaction: ChatInputCommandInteraction) => {
 
         // On instancie les variables
         let characterInfos: CharacterInfosType | undefined
-        let characterBuilds: InfographicType[] | null
+        let characterBuilds: InfographicType[] | null | undefined
 
         try {
             // Récupérer le personnage demandé
@@ -43,37 +82,40 @@ export default {
                 return;
             }
             // Obtenir la liste des infographies disponibles pour le personnage
-            characterBuilds = await Infographic.getCharacterBuilds(characterInfos.id);
+            characterBuilds = await Otterlyapi.getDataByAlias("infographics-getByIdGenshinCharacter", characterInfos.id.toString())
 
             // Préparer le lien du guide du personnage
             const guideLink = `https://keqingmains.com/q/${characterInfos.formatedValue}-quickguide/`
 
-            // Gestion des informations de l'embed
-            const embed = buildEmbed(characterInfos, guideLink, characterBuilds)
+            // Construction de l'embed
+            const embed = await buildEmbed(characterInfos, guideLink, characterBuilds ?? []);
 
             // Création de la liste des builds
             const actionRows: ActionRowBuilder<ButtonBuilder>[] = [];
             let currentRow = new ActionRowBuilder<ButtonBuilder>();
 
-            for (const build of characterBuilds) {
-                const button = new ButtonBuilder()
-                    .setCustomId(`${build.build}`)
-                    .setLabel(build.build)
-                    .setStyle(1);
+            if (!characterBuilds) {}
+            else {
+                for (const build of characterBuilds) {
+                    const button = new ButtonBuilder()
+                        .setCustomId(`${build.build}`)
+                        .setLabel(build.build)
+                        .setStyle(1);
 
-                // Ajout du bouton à la ligne actuelle
-                currentRow.addComponents(button);
+                    // Ajout du bouton à la ligne actuelle
+                    currentRow.addComponents(button);
 
-                // Si la ligne contient 5 boutons, on la sauvegarde et on en crée une nouvelle
-                if (currentRow.components.length === 5) {
-                    actionRows.push(currentRow);
-                    currentRow = new ActionRowBuilder<ButtonBuilder>();
+                    // Si la ligne contient 5 boutons, on la sauvegarde et on en crée une nouvelle
+                    if (currentRow.components.length === 5) {
+                        actionRows.push(currentRow);
+                        currentRow = new ActionRowBuilder<ButtonBuilder>();
+                    }
                 }
-            }
 
-            // Ajout de la dernière ligne si elle contient des boutons
-            if (currentRow.components.length > 0) {
-                actionRows.push(currentRow);
+                // Ajout de la dernière ligne si elle contient des boutons
+                if (currentRow.components.length > 0) {
+                    actionRows.push(currentRow);
+                }
             }
 
             // Envoi de la réponse avec plusieurs lignes si nécessaire
@@ -85,7 +127,7 @@ export default {
             });
 
             // Edition du message lorsque le bouton est cliqué
-            collector.on('collect', async (i: { customId: any; deferUpdate: () => any; }) => {
+            collector.on('collect', async (i: { customId: string; deferUpdate: () => unknown; }) => {
 
                 // Récupérer le bouton cliqué
                 const button = i.customId;
@@ -94,7 +136,7 @@ export default {
                 await i.deferUpdate();
 
                 // Récupérer l'infographie correspondante
-                const build = characterBuilds.find(build => build.build === button);
+                const build = characterBuilds?.find(build => build.build === button);
                 if (!build) {
                     await interaction.editReply({
                         content: 'Une erreur est survenue lors de la récupération de l\'infographie.',
