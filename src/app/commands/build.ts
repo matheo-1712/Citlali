@@ -80,6 +80,7 @@ export default {
                 await interaction.reply("Une erreur est survenue lors de la récupération du nom du personnage.");
                 return;
             }
+
             // Obtenir la liste des infographies disponibles pour le personnage
             characterBuilds = await Otterlyapi.getDataByAlias("infographics-getByIdGenshinCharacter", characterInfos.id.toString())
 
@@ -90,8 +91,8 @@ export default {
             const actionRows: ActionRowBuilder<ButtonBuilder>[] = [];
             let currentRow = new ActionRowBuilder<ButtonBuilder>();
 
-            if (!characterBuilds) {}
-            else {
+            // Si des builds sont disponibles, on les ajoute en tant que boutons
+            if (characterBuilds && characterBuilds.length > 0) {
                 for (const build of characterBuilds) {
                     const button = new ButtonBuilder()
                         .setCustomId(`${build.build}`)
@@ -152,6 +153,7 @@ export default {
                 });
             });
 
+            // Quand le collector est fini, on supprime les boutons
             collector.on('end', async () => {
                 await interaction.editReply({components: []});
             });
