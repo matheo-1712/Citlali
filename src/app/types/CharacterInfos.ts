@@ -1,6 +1,5 @@
 /**
  * Represents a character with specific attributes and properties in a given system.
- *
  * @typedef {Object} CharacterType
  * @property {number} [id] - The unique identifier for the character. This property is optional.
  * @property {string} name - The name of the character.
