@@ -141,7 +141,7 @@ export async function buildEmbed(characterInfos: CharacterInfosType, characterBu
                 inline: true
             }
         )
-        .setThumbnail(characterInfos.portraitLink)
+        .setThumbnail(`https://enka.network/ui/UI_AvatarIcon_${characterInfos.name}.png`)
         .setImage(
             characterBuilds?.[0]?.url ??
             "https://raw.githubusercontent.com/matheo-1712/Furina/refs/heads/main/api/img/infographies/default_Snezhnaya.png"
