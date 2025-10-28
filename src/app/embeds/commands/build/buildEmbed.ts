@@ -1,7 +1,7 @@
 import {ColorResolvable, EmbedBuilder} from "discord.js";
-import {CharacterInfosType} from "../types/CharacterInfos";
-import {InfographicType} from "../types/Infographic";
-import {getGuideLink} from "../utils/guideLink";
+import {CharacterInfosType} from "../../../types/CharacterInfos";
+import {InfographicType} from "../../../types/Infographic";
+import {getGuideLink} from "../../../utils/guideLink";
 
 /**
  * Builds an embedded message containing information about a character, including their name, vision, weapon, and an optional build infographic.
