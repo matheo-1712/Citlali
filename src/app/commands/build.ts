@@ -96,8 +96,7 @@ export default {
             // On crée l'embed
             embed = await buildEmbed(characterInfos, characterBuilds ?? []);
 
-        } catch (error) {
-            console.error(error);
+        } catch {
             return interaction.reply(
                 "⚠️ Une erreur est survenue lors de la récupération des informations du personnage."
             );
@@ -166,7 +165,7 @@ export default {
             });
 
         } catch (error) {
-            console.error("Erreur lors de la création de l'interface:", error);
+            otterlogs.error("Erreur lors de la création de l'interface: " + error);
             await interaction.reply(
                 "⚠️ Une erreur est survenue lors de la création de l'interface."
             );
