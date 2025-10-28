@@ -27,6 +27,7 @@ export default {
         }),
 
     execute: async (interaction: ChatInputCommandInteraction) => {
+
         try {
             // Récupérer l'utilisateur
             const member = interaction.options.get("membre")?.value?.toString();

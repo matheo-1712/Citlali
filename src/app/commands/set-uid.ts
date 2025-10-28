@@ -15,6 +15,8 @@ export default {
         }),
     execute: async (interaction: ChatInputCommandInteraction) => {
 
+        try {
+
         // Récupération du message
         const uid = interaction.options.get("uid")?.value?.toString();
 
@@ -69,6 +71,13 @@ export default {
             embeds: [setUidEmbed("Votre UID a bien été enregistré !", "Green")],
             flags: "Ephemeral"
         },);
+
+        } catch (error) {
+            console.error("Erreur lors de l'enregistrement de l'UID : " + error);
+            await interaction.reply({
+                embeds: [setUidEmbed("Une erreur est survenue lors de l'enregistrement de votre UID !", "Red")],
+            })
+        }
 
     }
 }
