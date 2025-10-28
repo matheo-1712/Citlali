@@ -8,11 +8,11 @@ import {
     SlashCommandBuilder
 } from "discord.js";
 
-import { buildEmbed } from "../embeds/buildEmbed";
-import { CharacterInfosType } from "../types/CharacterInfos";
-import { InfographicType } from "../types/Infographic";
-import { Otterlyapi } from "../../otterbots/utils/otterlyapi/otterlyapi";
-import { otterlogs } from "../../otterbots/utils/otterlogs";
+import {buildEmbed} from "../embeds/commands/build/buildEmbed";
+import {CharacterInfosType} from "../types/CharacterInfos";
+import {InfographicType} from "../types/Infographic";
+import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
+import {otterlogs} from "../../otterbots/utils/otterlogs";
 
 export default {
     name: "build",

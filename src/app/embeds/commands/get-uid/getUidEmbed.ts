@@ -1,5 +1,5 @@
-import {EmbedBuilder} from "discord.js";
-import {UidInfosType} from "../types/UidInfosType";
+import {ColorResolvable, EmbedBuilder} from "discord.js";
+import {UidInfosType} from "../../../types/UidInfosType";
 
 /**
  * Creates and returns an embed message object with information about a user's UID, formatted for use in applications like Discord.'
@@ -88,6 +88,16 @@ export async function getUidEmbed(uid_infos: UidInfosType | undefined) {
         .setColor("#00b0f4")
         .setFooter({
             text: "Powered by EnkaNetwork API",
+        })
+        .setTimestamp();
+}
+
+export function getUidEmbedError(title: string, color: ColorResolvable) {
+    return new EmbedBuilder()
+        .setTitle(title)
+        .setColor(color)
+        .setFooter({
+            text: "Citlali - Powered by Citlapi",
         })
         .setTimestamp();
 }

@@ -3,7 +3,7 @@ import {UidInfosType} from "../types/UidInfosType";
 import {Otterlyapi} from "../../otterbots/utils/otterlyapi/otterlyapi";
 import {UserType} from "../types/UserType";
 import {otterlogs} from "../../otterbots/utils/otterlogs";
-import {getUidEmbed} from "../embeds/getUidEmbed";
+import {getUidEmbed, getUidEmbedError} from "../embeds/commands/get-uid/getUidEmbed";
 
 export default {
     name: "get-uid",
@@ -27,22 +27,29 @@ export default {
         }),
 
     execute: async (interaction: ChatInputCommandInteraction) => {
+
         try {
             // Récupérer l'utilisateur
             const member = interaction.options.get("membre")?.value?.toString();
 
             // Vérifier si l'utilisateur existe
             if (!member) {
-                await interaction.reply("Membre non trouvé.");
+                await interaction.reply({
+                    embeds: [getUidEmbedError("Cette utilisateur n'existe pas.", "Red")],
+                    flags: "Ephemeral"
+                },);
                 return;
             }
 
             // Récupérer l'UID Genshin
-            const uid: UserType | undefined = await Otterlyapi.getDataByAlias("id-discord-to-uid-getByUid", member  )
+            const uid: UserType | undefined = await Otterlyapi.getDataByAlias("id-discord-to-uid-getUidByIdDiscord", member)
 
             // Vérifier si l'UID est enregistré
             if (!uid) {
-                await interaction.reply("Cet utilisateur n'a pas d'UID enregistré.");
+                await interaction.reply({
+                    embeds: [getUidEmbedError("Cet utilisateur n'a pas d'UID enregistré.", "Red")],
+                    flags: "Ephemeral"
+                },);
                 return;
             }
 
@@ -57,7 +64,10 @@ export default {
 
             // Récupérer les informations de l'utilisateur
             if (!uid?.uid_genshin) {
-                await interaction.reply("Une erreur est survenue lors de la récupération des informations du joueur.");
+                await interaction.reply({
+                    embeds: [getUidEmbedError("Une erreur est survenue lors de la récupération des informations du joueur.", "Red")],
+                    flags: "Ephemeral"
+                },);
                 return;
             }
             const uid_infos: UidInfosType | undefined = await Otterlyapi.getDataByAlias("uid-infos-getByUid", uid.uid_genshin)
@@ -69,7 +79,10 @@ export default {
 
         } catch (error) {
             otterlogs.error("Erreur lors de la récupération des informations du joueur: " + error);
-            await interaction.reply("Une erreur est survenue lors de la récupération des informations du joueur.");
+            await interaction.reply({
+                embeds: [getUidEmbedError("Une erreur est survenue lors de la récupération des informations du joueur.", "Red")],
+                flags: "Ephemeral"
+            },);
         }
     }
 }
