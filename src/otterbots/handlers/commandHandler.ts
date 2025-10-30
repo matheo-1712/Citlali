@@ -1,8 +1,8 @@
-import { Client, Collection, REST, Routes } from "discord.js";
+import {Client, Collection, REST, Routes} from "discord.js";
 import fs from "fs";
 import path from "path";
-import { pathToFileURL } from "url";
-import { SlashCommand } from "../types";
+import {pathToFileURL} from "url";
+import {SlashCommand} from "../types";
 import {otterlogs} from "../utils/otterlogs";
 
 /**
@@ -26,34 +26,38 @@ export async function otterBots_loadCommands(client: Client): Promise<void> {
         return;
     }
 
-    client.slashCommands = new Collection<string, SlashCommand>();
-    const commandsData = [];
+    try {
+        client.slashCommands = new Collection<string, SlashCommand>();
+        const commandsData = [];
 
-    for (const file of commandFiles) {
-        if (file.endsWith(".d.ts")) continue;
+        for (const file of commandFiles) {
+            if (file.endsWith(".d.ts")) continue;
 
-        const fileUrl = pathToFileURL(file).href;
-        const imported = await import(fileUrl);
+            const fileUrl = pathToFileURL(file).href;
+            const imported = await import(fileUrl);
 
-        const command = resolveCommand(imported);
+            const command = resolveCommand(imported);
 
-        // ⚠️ TypeScript type guard
-        if (!isSlashCommand(command)) {
-            otterlogs.error("Command ignored:" + file + " -> " + command);
-            continue;
+            // ⚠️ TypeScript type guard
+            if (!isSlashCommand(command)) {
+                otterlogs.error("Command ignored:" + file + " -> " + command);
+                continue;
+            }
+
+            client.slashCommands.set(command.data.name, command);
+            commandsData.push(command.data.toJSON());
         }
+        // Send commands to Discord
+        const rest = new REST({version: "10"}).setToken(process.env.BOT_TOKEN!);
+        await rest.put(
+            Routes.applicationCommands(process.env.DISCORD_CLIENT_ID!),
+            {body: commandsData}
+        );
 
-        client.slashCommands.set(command.data.name, command);
-        commandsData.push(command.data.toJSON());
+        otterlogs.success(`${commandsData.length} command(s) registered on Discord.`);
+    } catch (error) {
+        otterlogs.error("Error loading commands:" + error);
     }
-    // Send commands to Discord
-    const rest = new REST({version: "10"}).setToken(process.env.BOT_TOKEN!);
-    await rest.put(
-        Routes.applicationCommands(process.env.DISCORD_CLIENT_ID!),
-        {body: commandsData}
-    );
-
-    otterlogs.success(`${commandsData.length} command(s) registered on Discord.`);
 }
 
 /**

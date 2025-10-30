@@ -1,4 +1,4 @@
-import {Client, Colors, Guild, PermissionFlagsBits, ChannelType} from "discord.js";
+import {ChannelType, Client, Colors, Guild, PermissionFlagsBits} from "discord.js";
 import {otterlogs} from "./otterlogs";
 import {botSalon, salonCategory} from "../../app/config/salon";
 import fs from "fs";
@@ -77,6 +77,7 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                             channel.type === 4
                     );
 
+                    // If not, create it
                     if (!categoryChannel) {
                         // Creates a category with permissions for the specific role
                         categoryChannel = await guild.channels.create({
@@ -116,13 +117,9 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                             });
                             salon.channelId = newChannel.id;
                             otterlogs.success(`Channel "${salon.name}" created with ID: ${newChannel.id}!`);
-                            let existingChannels = {};
-                            try {
-                                existingChannels = JSON.parse(fs.readFileSync('channels.json', 'utf8'));
-                            } catch (error) {
-                                existingChannels = {};
-                                otterlogs.error(`Error reading channels.json: ${error}`);
-                            }
+
+                            // Ensure channels.json exists
+                            await createDefaultJson()
 
                             // Create a webhook if enabled
                             let webhookUrl = "";
@@ -135,11 +132,14 @@ export async function otterBots_initSalon(client: Client): Promise<void> {
                                 webhookUrl = webhook.url;
                             }
 
+                            // Update channels.json with new channel info
                             const channelData = {
-                                ...existingChannels,
+                                ...JSON.parse(fs.readFileSync('channels.json', 'utf8')),
                                 [salon.alias]: {name: salon.name, id: newChannel.id, webhook: webhookUrl}
                             };
-                            fs.writeFileSync('channels.json', JSON.stringify(channelData, null, 2));
+
+                            // Write updated data back to channels.json
+                            await fs.writeFileSync('channels.json', JSON.stringify(channelData, null, 2));
                             otterlogs.debug("Channels updated in channels.json");
                         }
                     }
@@ -171,5 +171,29 @@ export function getSalonByAlias(alias: string): SalonType | void {
     } catch (error) {
         otterlogs.error(`Error reading channel ID: ${error}`);
         return;
+    }
+}
+
+/**
+ * Creates a default channels.json file if it doesn't exist.
+ * If the file exists, it reads and parses the existing channels.
+ * In case of an error, it attempts to create the file again.
+ */
+async function createDefaultJson(): Promise<void> {
+    try {
+        if (!fs.existsSync('channels.json')) {
+            fs.writeFileSync('channels.json', JSON.stringify({}, null, 2), 'utf8');
+            otterlogs.debug('Channels file `channels.json` created by default');
+        }
+    } catch (error) {
+        otterlogs.error(`Error ensuring channels.json: ${error}`);
+        try {
+            if (!fs.existsSync('channels.json')) {
+                fs.writeFileSync('channels.json', JSON.stringify({}, null, 2), 'utf8');
+                otterlogs.debug('Channels file `channels.json` created after error');
+            }
+        } catch (err) {
+            otterlogs.error(`Unable to create channels.json: ${err}`);
+        }
     }
 }
