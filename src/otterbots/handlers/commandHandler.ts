@@ -10,7 +10,7 @@ import {otterlogs} from "../utils/otterlogs";
  * @param client
  */
 export async function otterBots_loadCommands(client: Client): Promise<void> {
-    client.on("ready", async () => {
+    client.on("clientReady", async () => {
         const rootDir = path.join(__dirname, "..");
         const commandsPath = path.join(rootDir, "commands");
         const additionalPath = path.join(rootDir, "../app/commands/");
