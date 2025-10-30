@@ -10,54 +10,56 @@ import {otterlogs} from "../utils/otterlogs";
  * @param client
  */
 export async function otterBots_loadCommands(client: Client): Promise<void> {
-    const rootDir = path.join(__dirname, "..");
-    const commandsPath = path.join(rootDir, "commands");
-    const additionalPath = path.join(rootDir, "../app/commands/");
+    client.on("ready", async () => {
+        const rootDir = path.join(__dirname, "..");
+        const commandsPath = path.join(rootDir, "commands");
+        const additionalPath = path.join(rootDir, "../app/commands/");
 
-    let commandFiles: string[] = [];
+        let commandFiles: string[] = [];
 
-    try {
-        commandFiles = [
-            ...getAllCommandFiles(commandsPath),
-            ...getAllCommandFiles(additionalPath)
-        ];
-    } catch (error) {
-        otterlogs.warn("Commands folder not found, continuing..." + error);
-        return;
-    }
-
-    try {
-        client.slashCommands = new Collection<string, SlashCommand>();
-        const commandsData = [];
-
-        for (const file of commandFiles) {
-            if (file.endsWith(".d.ts")) continue;
-
-            const fileUrl = pathToFileURL(file).href;
-            const imported = await import(fileUrl);
-
-            const command = resolveCommand(imported);
-
-            // ⚠️ TypeScript type guard
-            if (!isSlashCommand(command)) {
-                otterlogs.error("Command ignored:" + file + " -> " + command);
-                continue;
-            }
-
-            client.slashCommands.set(command.data.name, command);
-            commandsData.push(command.data.toJSON());
+        try {
+            commandFiles = [
+                ...getAllCommandFiles(commandsPath),
+                ...getAllCommandFiles(additionalPath)
+            ];
+        } catch (error) {
+            otterlogs.warn("Commands folder not found, continuing..." + error);
+            return;
         }
-        // Send commands to Discord
-        const rest = new REST({version: "10"}).setToken(process.env.BOT_TOKEN!);
-        await rest.put(
-            Routes.applicationCommands(process.env.DISCORD_CLIENT_ID!),
-            {body: commandsData}
-        );
 
-        otterlogs.success(`${commandsData.length} command(s) registered on Discord.`);
-    } catch (error) {
-        otterlogs.error("Error loading commands:" + error);
-    }
+        try {
+            client.slashCommands = new Collection<string, SlashCommand>();
+            const commandsData = [];
+
+            for (const file of commandFiles) {
+                if (file.endsWith(".d.ts")) continue;
+
+                const fileUrl = pathToFileURL(file).href;
+                const imported = await import(fileUrl);
+
+                const command = resolveCommand(imported);
+
+                // ⚠️ TypeScript type guard
+                if (!isSlashCommand(command)) {
+                    otterlogs.error("Command ignored:" + file + " -> " + command);
+                    continue;
+                }
+
+                client.slashCommands.set(command.data.name, command);
+                commandsData.push(command.data.toJSON());
+            }
+            // Send commands to Discord
+            const rest = new REST({version: "10"}).setToken(process.env.BOT_TOKEN!);
+            await rest.put(
+                Routes.applicationCommands(process.env.DISCORD_CLIENT_ID!),
+                {body: commandsData}
+            );
+
+            otterlogs.success(`${commandsData.length} command(s) registered on Discord.`);
+        } catch (error) {
+            otterlogs.error("Error loading commands:" + error);
+        }
+    })
 }
 
 /**
