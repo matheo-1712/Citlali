@@ -6,7 +6,7 @@ import {Message} from "discord.js";
  * @type {Array<{condition: (msg: Message) => boolean, emoji: string}>}
  */
 export const otterbots_reactions: Array<{ condition: (msg: Message) => boolean; emoji: string; }> = [
-    {
+    /**{
         condition: (msg: Message) => {
             // Condition to check if the message contains "otter" or "loutre"
             const content = msg.content.toLowerCase();
@@ -14,5 +14,5 @@ export const otterbots_reactions: Array<{ condition: (msg: Message) => boolean; 
         },
         // Emoji to react with when the condition is met
         emoji: "🦦"
-    },
+    },**/
 ];
