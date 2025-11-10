@@ -139,6 +139,13 @@ export default {
             });
 
             collector.on("collect", async i => {
+
+                // Vérifie si l'utilisateur est le propriétaire de l'embed
+                if (i.user.id !== interaction.user.id) {
+                    await i.reply({ content: "❌ Seul le propriétaire peut changer le build.", ephemeral: true });
+                    return;
+                }
+
                 await i.deferUpdate();
 
                 const build = characterBuilds?.find(b => b.build === i.customId);
