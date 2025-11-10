@@ -35,7 +35,7 @@ export default {
             const focusedValue = interaction.options.getFocused();
             const allCharacters = await Otterlyapi.getDataByAlias("characters-getAll");
 
-            const characters = Array.isArray(allCharacters) ? allCharacters : [];
+            const characters: CharacterInfosType[] = Array.isArray(allCharacters) ? allCharacters : [];
 
             // Filtrage selon la saisie utilisateur
             const filtered = characters.filter(
@@ -110,7 +110,7 @@ export default {
                 for (const build of characterBuilds) {
                     const button = new ButtonBuilder()
                         .setCustomId(build.build)
-                        .setLabel(build.build)
+                        .setLabel(`${build.source}: ${build.build.charAt(0).toUpperCase() + build.build.slice(1).toLowerCase()}`)
                         .setStyle(1); // Primary
 
                     currentRow.addComponents(button);

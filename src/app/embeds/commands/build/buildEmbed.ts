@@ -113,6 +113,14 @@ export async function buildEmbed(characterInfos: CharacterInfosType, characterBu
         });
     }
 
+    if (guideLink.gazetteGuide) {
+        guideFields.push({
+            name: "Guide Français :",
+            value: `[La Gazette de Teyvat](${guideLink.gazetteGuideUrl})`,
+            inline: true
+        })
+    }
+
     // Préparation de l'embed
     return new EmbedBuilder()
         .setTitle(`Build de ${characterInfos.name}`)
@@ -147,7 +155,7 @@ export async function buildEmbed(characterInfos: CharacterInfosType, characterBu
             "https://raw.githubusercontent.com/matheo-1712/Furina/refs/heads/main/api/img/infographies/default_Snezhnaya.png"
         )
         .setFooter({
-            text: "Crédits : Keqing Mains - Powered by CitlAPI",
+            text: "Crédits : Keqing Mains / Gazette de Teyvat - Powered by CitlAPI",
         })
         .setTimestamp();
 }

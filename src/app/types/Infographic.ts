@@ -13,4 +13,5 @@ export type InfographicType = {
     character: string,
     build: string,
     url: string,
+    source: string,
 }

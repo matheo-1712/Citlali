@@ -20,11 +20,14 @@
 export async function getGuideLink(character: string): Promise<{
     quickGuide: boolean;
     quickGuideUrl: string;
+    gazetteGuideUrl: string;
+    gazetteGuide: boolean;
     fullGuide: boolean;
     fullGuideUrl: string;
 }> {
     const urlQuick = `https://keqingmains.com/q/${character.toLowerCase()}-quickguide`;
     const urlFull = `https://keqingmains.com/${character.toLowerCase()}`;
+    const urlGazette = `https://lagazettedeteyvat.fr/personnages/${character.toLowerCase()}`;
 
     // Vérifie si une URL est accessible (status 200 et pas 404)
     async function exists(url: string): Promise<boolean> {
@@ -36,10 +39,11 @@ export async function getGuideLink(character: string): Promise<{
         }
     }
 
-    const [quickGuide, fullGuide] = await Promise.all([
+    const [quickGuide, fullGuide, gazetteGuide] = await Promise.all([
         exists(urlQuick),
-        exists(urlFull)
+        exists(urlFull),
+        exists(urlGazette)
     ]);
 
-    return { quickGuide, quickGuideUrl: urlQuick, fullGuide, fullGuideUrl: urlFull  };
+    return { quickGuide, quickGuideUrl: urlQuick, fullGuide, fullGuideUrl: urlFull, gazetteGuide: gazetteGuide, gazetteGuideUrl: urlGazette  };
 }
