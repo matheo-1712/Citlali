@@ -81,6 +81,12 @@ export async function buildEmbed(characterInfos: CharacterInfosType, characterBu
             break;
     }
 
+    const thumbnailUrlResponse = await checkCharacterImage(characterInfos);
+    const thumbnailUrl = thumbnailUrlResponse.status
+        ? thumbnailUrlResponse.url
+        : "https://enka.network/ui/UI_AvatarIcon_Furina.png";
+
+
     const guideLink = await getGuideLink(characterInfos.formatedValue)
     if (!guideLink || (!guideLink.quickGuide && !guideLink.fullGuide)) {
         return new EmbedBuilder()
@@ -149,7 +155,7 @@ export async function buildEmbed(characterInfos: CharacterInfosType, characterBu
                 inline: true
             }
         )
-        .setThumbnail(`https://enka.network/ui/UI_AvatarIcon_${characterInfos.name}.png`)
+        .setThumbnail(thumbnailUrl)
         .setImage(
             characterBuilds?.[0]?.url ??
             "https://raw.githubusercontent.com/matheo-1712/Furina/refs/heads/main/api/img/infographies/default_Snezhnaya.png"
@@ -158,4 +164,44 @@ export async function buildEmbed(characterInfos: CharacterInfosType, characterBu
             text: "Crédits : Keqing Mains / Gazette de Teyvat - Powered by CitlAPI",
         })
         .setTimestamp();
+}
+
+
+export type checkCharacterImageResponse = { status: boolean; url: string };
+
+/**
+ * Vérifie si l'image du personnage existe (pas de 404) et renvoie l'URL valide.
+ * Si aucune image n'est trouvée, retourne { status: false, url: "" }.
+ */
+export async function checkCharacterImage(
+    characterInfos: CharacterInfosType
+): Promise<checkCharacterImageResponse> {
+    if (!characterInfos?.name) return {status: false, url: ""};
+
+    // Encode le nom pour éviter espaces et caractères spéciaux
+    const safeName = encodeURIComponent(characterInfos.name.trim());
+    const url = `https://enka.network/ui/UI_AvatarIcon_${safeName}.png`;
+
+    // URL de secours basée sur formatedValue
+    const safeFormatted = encodeURIComponent(
+        characterInfos.formatedValue.trim().charAt(0).toUpperCase() + characterInfos.formatedValue.trim().slice(1)
+    );
+    const backupUrl = `https://enka.network/ui/UI_AvatarIcon_${safeFormatted}.png`;
+
+    try {
+        // Vérifie l'URL principale
+        const response = await fetch(url, {method: "HEAD"});
+        if (response.ok) return {status: true, url: url};
+
+        // Vérifie l'URL de secours
+        const backupResponse = await fetch(backupUrl, {method: "HEAD"});
+        if (backupResponse.ok) return {status: true, url: backupUrl};
+
+        // Si aucune n'existe, retourne false
+        return {status: false, url: ""};
+
+    } catch (error) {
+        console.error("Erreur lors de la vérification de l'image :", error);
+        return {status: false, url: ""};
+    }
 }
