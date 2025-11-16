@@ -97,8 +97,9 @@ export default {
             embed = await buildEmbed(characterInfos, characterBuilds ?? []);
 
         } catch {
-            return interaction.reply(
-                "⚠️ Une erreur est survenue lors de la récupération des informations du personnage."
+            return interaction.reply({
+                content: "⚠️ Une erreur est survenue lors de la récupération des informations du personnage.",
+                flags: "Ephemeral"}
             );
         }
 
@@ -142,7 +143,7 @@ export default {
 
                 // Vérifie si l'utilisateur est le propriétaire de l'embed
                 if (i.user.id !== interaction.user.id) {
-                    await i.reply({ content: "❌ Seul le propriétaire peut changer le build.", ephemeral: true });
+                    await i.reply({ content: "❌ Seul le propriétaire peut changer le build.", flags: "Ephemeral"});
                     return;
                 }
 
@@ -173,8 +174,9 @@ export default {
 
         } catch (error) {
             otterlogs.error("Erreur lors de la création de l'interface: " + error);
-            await interaction.reply(
-                "⚠️ Une erreur est survenue lors de la création de l'interface."
+            await interaction.reply({
+                content: "⚠️ Une erreur est survenue lors de la création de l'interface.",
+                flags: "Ephemeral"}
             );
         }
     }

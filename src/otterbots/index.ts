@@ -140,5 +140,4 @@ export class Otterbots {
         const otterlyApiModule = new Otterlyapi()
         otterlyApiModule.init()
     }
-
 }
